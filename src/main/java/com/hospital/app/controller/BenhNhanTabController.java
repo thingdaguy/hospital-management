@@ -12,7 +12,9 @@ import com.hospital.app.view.BenhNhanDialog;
 import com.hospital.app.view.HoaDonDialog;
 import com.hospital.app.view.MainForm;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JOptionPane;
 
 public class BenhNhanTabController {
@@ -59,7 +61,13 @@ public class BenhNhanTabController {
         try {
             List<BacSi> bacSis = bacSiService.findAll();
             List<PhongBenh> phongBenhs = phongBenhService.findAll();
-            BenhNhanDialog dlg = new BenhNhanDialog(view, "Thêm Mới Bệnh Nhân", bacSis, phongBenhs, null);
+            
+            Map<String, Long> roomOccupancy = new HashMap<>();
+            for (PhongBenh pb : phongBenhs) {
+                roomOccupancy.put(pb.getMaPhong(), benhNhanService.countByPhong(pb.getMaPhong()));
+            }
+            
+            BenhNhanDialog dlg = new BenhNhanDialog(view, "Thêm Mới Bệnh Nhân", bacSis, phongBenhs, roomOccupancy, null);
             dlg.setVisible(true);
             if (dlg.isOk()) {
                 benhNhanService.save(dlg.getBenhNhan());
@@ -82,7 +90,13 @@ public class BenhNhanTabController {
             if (bn == null) return;
             List<BacSi> bacSis = bacSiService.findAll();
             List<PhongBenh> phongBenhs = phongBenhService.findAll();
-            BenhNhanDialog dlg = new BenhNhanDialog(view, "Sửa Bệnh Nhân", bacSis, phongBenhs, bn);
+            
+            Map<String, Long> roomOccupancy = new HashMap<>();
+            for (PhongBenh pb : phongBenhs) {
+                roomOccupancy.put(pb.getMaPhong(), benhNhanService.countByPhong(pb.getMaPhong()));
+            }
+            
+            BenhNhanDialog dlg = new BenhNhanDialog(view, "Sửa Bệnh Nhân", bacSis, phongBenhs, roomOccupancy, bn);
             dlg.setVisible(true);
 
             if (dlg.isOk()) {
