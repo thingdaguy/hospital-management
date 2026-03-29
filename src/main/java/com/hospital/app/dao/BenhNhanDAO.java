@@ -32,7 +32,8 @@ public class BenhNhanDAO {
     }
 
     /**
-     * JPQL tìm theo tên (chứa chuỗi, không phân biệt hoa thường) — dùng cho ô tìm kiếm.
+     * JPQL tìm theo tên (chứa chuỗi, không phân biệt hoa thường) — dùng cho ô tìm
+     * kiếm.
      */
     public List<BenhNhan> searchByTenContaining(String keyword) {
         EntityManager em = JpaUtil.getEntityManager();
@@ -47,6 +48,86 @@ public class BenhNhanDAO {
             TypedQuery<BenhNhan> q = em.createQuery(jpql, BenhNhan.class);
             q.setParameter("kw", "%" + keyword.trim() + "%");
             return q.getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Tìm bệnh nhân theo mã (ID).
+     */
+    public BenhNhan findById(String id) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            return em.find(BenhNhan.class, id);
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Thêm mới một bệnh nhân.
+     */
+    public void save(BenhNhan benhNhan) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            em.getTransaction().begin();
+            if (benhNhan.getBacSiTiepNhan() != null) {
+                benhNhan.setBacSiTiepNhan(
+                        em.getReference(com.hospital.app.entity.BacSi.class, benhNhan.getBacSiTiepNhan().getMaBacSi()));
+            }
+            if (benhNhan.getPhongBenh() != null) {
+                benhNhan.setPhongBenh(
+                        em.getReference(com.hospital.app.entity.PhongBenh.class, benhNhan.getPhongBenh().getMaPhong()));
+            }
+            em.persist(benhNhan);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Cập nhật thông tin bệnh nhân.
+     */
+    public void update(BenhNhan benhNhan) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.merge(benhNhan);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Xóa bệnh nhân theo mã.
+     */
+    public void delete(String id) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            em.getTransaction().begin();
+            BenhNhan b = em.find(BenhNhan.class, id);
+            if (b != null) {
+                em.remove(b);
+            }
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
         } finally {
             em.close();
         }
