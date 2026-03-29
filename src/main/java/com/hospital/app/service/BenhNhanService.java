@@ -76,4 +76,11 @@ public class BenhNhanService {
     public void delete(String id) {
         benhNhanDAO.delete(id);
     }
+
+    /**
+     * Đếm số lượng bệnh nhân đang ở trong một phòng.
+     */
+    public long countByPhong(String maPhong) {
+        return benhNhanDAO.countByPhong(maPhong);
+    }
 }

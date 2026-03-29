@@ -9,6 +9,7 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 public class BenhNhanDialog extends JDialog {
 
@@ -24,11 +25,15 @@ public class BenhNhanDialog extends JDialog {
 
     private boolean isOk = false;
     private final BenhNhan benhNhan;
+    private final Map<String, Long> roomOccupancy;
+    private final List<PhongBenh> phongBenHs;
 
     public BenhNhanDialog(Frame parent, String title, List<BacSi> bacSis, List<PhongBenh> phongBenhs,
-            BenhNhan benhNhan) {
+            Map<String, Long> roomOccupancy, BenhNhan benhNhan) {
         super(parent, title, true);
         this.benhNhan = benhNhan != null ? benhNhan : new BenhNhan();
+        this.roomOccupancy = roomOccupancy;
+        this.phongBenHs = phongBenhs;
         initComponents(bacSis, phongBenhs);
         fillData(benhNhan != null);
         pack();
@@ -50,8 +55,11 @@ public class BenhNhanDialog extends JDialog {
         }
 
         cbPhongBenh = new JComboBox<>();
+        cbPhongBenh.addItem(new ComboItem("", "-- Ngoại trú (Không cần phòng) --"));
         for (PhongBenh pb : phongBenhs) {
-            cbPhongBenh.addItem(new ComboItem(pb.getMaPhong(), pb.getMaPhong() + " - " + pb.getLoaiPhong()));
+            long current = roomOccupancy.getOrDefault(pb.getMaPhong(), 0L);
+            String label = pb.getMaPhong() + " - " + pb.getLoaiPhong() + " (" + current + "/" + pb.getSoGiuongToiDa() + ")";
+            cbPhongBenh.addItem(new ComboItem(pb.getMaPhong(), label));
         }
 
         pnlInput.add(new JLabel("Mã BN:"));
@@ -129,6 +137,27 @@ public class BenhNhanDialog extends JDialog {
             JOptionPane.showMessageDialog(this, "Ngày sinh không hợp lệ (định dạng dd/MM/yyyy)!");
             return false;
         }
+
+        ComboItem selectedPb = (ComboItem) cbPhongBenh.getSelectedItem();
+        if (selectedPb != null && !selectedPb.getId().isEmpty()) {
+            PhongBenh targetRoom = phongBenHs.stream()
+                .filter(p -> p.getMaPhong().equals(selectedPb.getId()))
+                .findFirst()
+                .orElse(null);
+
+            if (targetRoom != null) {
+                long current = roomOccupancy.getOrDefault(targetRoom.getMaPhong(), 0L);
+                
+                boolean isSameRoom = (benhNhan != null && benhNhan.getPhongBenh() != null 
+                    && targetRoom.getMaPhong().equals(benhNhan.getPhongBenh().getMaPhong()));
+                
+                if (!isSameRoom && current >= targetRoom.getSoGiuongToiDa()) {
+                    JOptionPane.showMessageDialog(this, "Phòng này đã đầy, vui lòng chọn phòng khác!");
+                    return false;
+                }
+            }
+        }
+
         return true;
     }
 
@@ -146,10 +175,12 @@ public class BenhNhanDialog extends JDialog {
         }
 
         ComboItem selectedPb = (ComboItem) cbPhongBenh.getSelectedItem();
-        if (selectedPb != null) {
+        if (selectedPb != null && !selectedPb.getId().isEmpty()) {
             PhongBenh pb = new PhongBenh();
             pb.setMaPhong(selectedPb.getId());
             benhNhan.setPhongBenh(pb);
+        } else {
+            benhNhan.setPhongBenh(null);
         }
     }
 

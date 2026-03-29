@@ -132,4 +132,19 @@ public class BenhNhanDAO {
             em.close();
         }
     }
+
+    /**
+     * Đếm số lượng bệnh nhân đang ở trong một phòng.
+     */
+    public long countByPhong(String maPhong) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            String jpql = "SELECT COUNT(b) FROM BenhNhan b WHERE b.phongBenh.maPhong = :maPhong";
+            TypedQuery<Long> q = em.createQuery(jpql, Long.class);
+            q.setParameter("maPhong", maPhong);
+            return q.getSingleResult();
+        } finally {
+            em.close();
+        }
+    }
 }
