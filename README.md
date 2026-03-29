@@ -33,7 +33,7 @@ Mở `src/main/resources/META-INF/persistence.xml` có 3 biến:
 
 - `jakarta.persistence.jdbc.url` — host, port, tên DB 
 - `jakarta.persistence.jdbc.user` — user MySQL
-- `jakarta.persistence.jdbc.password` — mật khẩ
+- `jakarta.persistence.jdbc.password` — mật khẩu
 Tạo file .env và cấu hình các biến password, url, user. Tham khảo file .env.example
 
 `hibernate.hbm2ddl.auto` đang là **`validate`**: Hibernate chỉ kiểm tra entity khớp schema, **không** tự tạo/sửa bảng (schema do file SQL định nghĩa).
