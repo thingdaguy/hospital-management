@@ -81,7 +81,7 @@ CREATE TABLE benh_nhan (
     ngay_sinh      DATE         NOT NULL,
     so_dien_thoai  VARCHAR(30)  NULL,
     ma_bac_si      VARCHAR(20) NOT NULL,
-    ma_phong       VARCHAR(20) NOT NULL,
+    ma_phong       VARCHAR(20) NULL,
     CONSTRAINT fk_bn_bac_si FOREIGN KEY (ma_bac_si) REFERENCES bac_si (ma_bac_si),
     CONSTRAINT fk_bn_phong  FOREIGN KEY (ma_phong)  REFERENCES phong_benh (ma_phong)
 ) ENGINE=InnoDB;
