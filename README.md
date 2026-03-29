@@ -14,11 +14,12 @@
 
 ### 1. Tạo database và nạp dữ liệu
 
-Đăng nhập MySQL (CLI hoặc Workbench) với cmd: 
+Đăng nhập MySQL CLI với cmd: 
 ```text
 mysql -u root -p
 ```
-sau đó dán toàn bộ file:
+( hoặc Workbench )
+Sau đó dán toàn bộ file:
 
 ```text
 sql/hospital_schema_and_data.sql
@@ -28,18 +29,18 @@ Script sẽ tạo database `hospital_db`, toàn bộ bảng và dữ liệu mẫ
 
 ### 2. Cấu hình kết nối JPA
 
-Mở `src/main/resources/META-INF/persistence.xml` và chỉnh cho khớp máy:
+Mở `src/main/resources/META-INF/persistence.xml` có 3 biến:
 
-- `jakarta.persistence.jdbc.url` — host, port, tên DB (mặc định `hospital_db`)
+- `jakarta.persistence.jdbc.url` — host, port, tên DB 
 - `jakarta.persistence.jdbc.user` — user MySQL
-- `jakarta.persistence.jdbc.password` — mật khẩu
+- `jakarta.persistence.jdbc.password` — mật khẩ
+Tạo file .env và cấu hình các biến password, url, user. Tham khảo file .env.example
 
 `hibernate.hbm2ddl.auto` đang là **`validate`**: Hibernate chỉ kiểm tra entity khớp schema, **không** tự tạo/sửa bảng (schema do file SQL định nghĩa).
 
 ### 3. Biên dịch và chạy
 
-Trong thư mục gốc project (nơi có `pom.xml`):
-
+Trong thư mục gốc project (nơi có `pom.xml`)
 ```bash
 mvn compile exec:java
 ```
@@ -79,9 +80,9 @@ BigProject/
 
 Có thể thêm các DAO/Service khác (khoa, hóa đơn, thống kê…) theo cùng pattern.
 
-## Gợi ý cho dev mới
+## Gợi ý 
 
-1. Đọc `DATABASE_DESIGN.md` để nắm thực thể và quan hệ.
+1. Đọc `docs/DATABASE_DESIGN.md` để nắm thực thể và quan hệ.
 2. Entity nằm trong `entity/`; khi đổi cột/bảng, cập nhật **cả** SQL và annotation cho khớp (`validate`).
 3. Thêm màn hình: tạo `SubForm` mới + Controller tương ứng, gọi từ menu trên `MainForm` khi cần.
 
