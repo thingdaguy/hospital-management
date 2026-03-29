@@ -47,7 +47,7 @@ public class BenhNhan {
     private BacSi bacSiTiepNhan;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ma_phong", nullable = false)
+    @JoinColumn(name = "ma_phong")
     private PhongBenh phongBenh;
 
     @OneToOne(mappedBy = "benhNhan", fetch = FetchType.LAZY)

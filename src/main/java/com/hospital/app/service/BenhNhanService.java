@@ -60,6 +60,16 @@ public class BenhNhanService {
      * Thêm mới bệnh nhân.
      */
     public void save(BenhNhan benhNhan) {
+        if (benhNhan == null) {
+            throw new IllegalArgumentException("Dữ liệu bệnh nhân không hợp lệ.");
+        }
+        String maBn = benhNhan.getMaBenhNhan();
+        if (maBn == null || maBn.isBlank()) {
+            throw new IllegalArgumentException("Mã bệnh nhân không được để trống.");
+        }
+        if (benhNhanDAO.findById(maBn) != null) {
+            throw new IllegalArgumentException("Mã bệnh nhân '" + maBn + "' đã tồn tại.");
+        }
         benhNhanDAO.save(benhNhan);
     }
 
