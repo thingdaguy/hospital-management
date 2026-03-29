@@ -1,6 +1,6 @@
 # Hệ thống quản lý bệnh viện đa khoa
 
-Ứng dụng mẫu theo **Java Swing MVC** + **JPA/Hibernate**, bám [DATABASE_DESIGN.md](DATABASE_DESIGN.md) và yêu cầu trong [ASSIGNMENT.md](ASSIGNMENT.md). Hiện tại đã có **cấu trúc thư mục đầy đủ các tầng** (Entity / DTO / DAO / Service / Controller / View / `MainApp`) và tính năng **danh sách + tìm kiếm bệnh nhân** trên form chính.
+Ứng dụng mẫu theo **Java Swing MVC** + **JPA/Hibernate**, bám [DATABASE_DESIGN.md](docs/DATABASE_DESIGN.md) và yêu cầu trong [ASSIGNMENT.md](docs/ASSIGNMENT.md). Hiện tại đã có **cấu trúc thư mục đầy đủ các tầng** (Entity / DTO / DAO / Service / Controller / View / `MainApp`) và tính năng **danh sách + tìm kiếm bệnh nhân** trên form chính.
 
 ## Yêu cầu môi trường
 
