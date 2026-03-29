@@ -46,7 +46,34 @@ public class BenhNhanService {
                 b.getSoDienThoai(),
                 tenBs,
                 maPhong,
-                loaiPhong
-        );
+                loaiPhong);
+    }
+
+    /**
+     * Tìm bệnh nhân theo mã.
+     */
+    public BenhNhan findById(String id) {
+        return benhNhanDAO.findById(id);
+    }
+
+    /**
+     * Thêm mới bệnh nhân.
+     */
+    public void save(BenhNhan benhNhan) {
+        benhNhanDAO.save(benhNhan);
+    }
+
+    /**
+     * Cập nhật bệnh nhân.
+     */
+    public void update(BenhNhan benhNhan) {
+        benhNhanDAO.update(benhNhan);
+    }
+
+    /**
+     * Xóa bệnh nhân theo mã.
+     */
+    public void delete(String id) {
+        benhNhanDAO.delete(id);
     }
 }

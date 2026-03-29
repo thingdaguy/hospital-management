@@ -1,42 +1,37 @@
 package com.hospital.app.controller;
 
-import com.hospital.app.dto.BenhNhanRowDTO;
+import com.hospital.app.service.BacSiService;
 import com.hospital.app.service.BenhNhanService;
+import com.hospital.app.service.HoaDonService;
+import com.hospital.app.service.KhoaService;
+import com.hospital.app.service.PhongBenhService;
 import com.hospital.app.view.MainForm;
 
-import java.util.List;
-
-/**
- * Controller cho MainForm — nối View với Service (MVC).
- */
 public class MainFormController {
 
     private final MainForm view;
+
+    // Services
     private final BenhNhanService benhNhanService = new BenhNhanService();
+    private final BacSiService bacSiService = new BacSiService();
+    private final PhongBenhService phongBenhService = new PhongBenhService();
+    private final KhoaService khoaService = new KhoaService();
+    private final HoaDonService hoaDonService = new HoaDonService();
+
+    // Tab Controllers
+    private BenhNhanTabController benhNhanTabController;
+    private BacSiTabController bacSiTabController;
+    private PhongBenhTabController phongBenhTabController;
 
     public MainFormController(MainForm view) {
         this.view = view;
-        wireEvents();
+        initControllers();
     }
 
-    /** Gắn sự kiện nút và tải dữ liệu ban đầu. */
-    private void wireEvents() {
-        view.getBtnRefresh().addActionListener(e -> loadPatients());
-        view.getBtnSearch().addActionListener(e -> searchPatients());
-        loadPatients();
-    }
-
-    /** Tải lại toàn bộ danh sách bệnh nhân. */
-    public void loadPatients() {
-        view.getSearchField().setText("");
-        List<BenhNhanRowDTO> rows = benhNhanService.listAllForTable();
-        view.populatePatientTable(rows);
-    }
-
-    /** Tìm theo tên (gọi JPQL có điều kiện). */
-    public void searchPatients() {
-        String kw = view.getSearchField().getText();
-        List<BenhNhanRowDTO> rows = benhNhanService.searchByName(kw);
-        view.populatePatientTable(rows);
+    private void initControllers() {
+        benhNhanTabController = new BenhNhanTabController(
+                view, benhNhanService, bacSiService, phongBenhService, hoaDonService);
+        bacSiTabController = new BacSiTabController(view, bacSiService, khoaService);
+        phongBenhTabController = new PhongBenhTabController(view, phongBenhService);
     }
 }
