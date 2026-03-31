@@ -23,6 +23,7 @@
         <class>com.hospital.app.entity.Thuoc</class>
         <class>com.hospital.app.entity.ChiTietDonThuoc</class>
         <class>com.hospital.app.entity.HoaDon</class>
+        <class>com.hospital.app.entity.TaiKhoan</class>
 
         <properties>
             <!-- Cập nhật user/password theo MySQL local -->

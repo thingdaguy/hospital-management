@@ -1,9 +1,9 @@
 package com.hospital.app;
 
-import com.hospital.app.controller.MainFormController;
 import com.hospital.app.util.JpaUtil;
-import com.hospital.app.view.MainForm;
+import com.hospital.app.view.LoginForm;
 import com.hospital.app.util.EnvLoader;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -17,6 +17,8 @@ public final class MainApp {
 
     public static void main(String[] args) {
         EnvLoader.load();
+        String hash = BCrypt.hashpw("1", BCrypt.gensalt());
+System.out.println(hash);
         System.out.println("DB_URL=" + System.getProperty("DB_URL"));
         System.out.println("DB_PASSWORD=" + System.getProperty("DB_PASSWORD"));
         System.out.println("DB_USER=" + System.getProperty("DB_USER"));
@@ -26,10 +28,9 @@ public final class MainApp {
             } catch (Exception ignored) {
                 // giữ LAF mặc định nếu không set được
             }
-            MainForm frame = new MainForm();
-            new MainFormController(frame);
+            LoginForm loginForm = new LoginForm();
             Runtime.getRuntime().addShutdownHook(new Thread(JpaUtil::shutdown));
-            frame.setVisible(true);
+            loginForm.setVisible(true);
         });
     }
 }
