@@ -46,10 +46,19 @@ public class PhongBenhService {
     }
 
     public void update(PhongBenh phongBenh) {
+        long currentOccupancy = new com.hospital.app.service.BenhNhanService().countByPhong(phongBenh.getMaPhong());
+        if (phongBenh.getSoGiuongToiDa() != null && phongBenh.getSoGiuongToiDa() < currentOccupancy) {
+            throw new IllegalArgumentException("Số giường tối đa không thể nhỏ hơn số bệnh nhân hiện đang ở trong phòng (" + currentOccupancy + ")");
+        }
         phongBenhDAO.update(phongBenh);
     }
 
     public void delete(String id) {
+        // Prevent deleting a room that still has patients assigned
+        long occupied = new com.hospital.app.service.BenhNhanService().countByPhong(id);
+        if (occupied > 0) {
+            throw new IllegalArgumentException("Không thể xóa phòng vì còn " + occupied + " bệnh nhân đang ở trong phòng.");
+        }
         phongBenhDAO.delete(id);
     }
 }
