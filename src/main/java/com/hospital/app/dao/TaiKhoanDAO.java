@@ -32,5 +32,25 @@ public class TaiKhoanDAO {
             em.close();
         }
     }
+
+    /**
+     * Thêm tài khoản mới.
+     */
+    public void create(TaiKhoan tk) {
+        if (tk == null) return;
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.persist(tk);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
 }
 

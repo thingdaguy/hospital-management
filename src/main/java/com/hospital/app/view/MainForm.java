@@ -57,6 +57,9 @@ public class MainForm extends JFrame {
     private final DefaultTableModel tableModelPB;
     private final JTable tablePB;
 
+    // Overview Panel
+    private final OverviewPanel overviewPanel = new OverviewPanel();
+    
     public MainForm() {
         super("Quản lý Bệnh viện — Màn hình chính");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,6 +67,9 @@ public class MainForm extends JFrame {
         setLocationRelativeTo(null);
 
         JTabbedPane tabbedPane = new JTabbedPane();
+
+        // 0. Tab Tổng quan (Dashboard)
+        tabbedPane.addTab("Tổng quan", overviewPanel);
 
         // 1. Tab Bệnh Nhân
         String[] colsBN = {
@@ -214,4 +220,7 @@ public class MainForm extends JFrame {
     public JButton getBtnAddPB() { return btnAddPB; }
     public JButton getBtnEditPB() { return btnEditPB; }
     public JButton getBtnDeletePB() { return btnDeletePB; }
+    
+    // --- GETTERS CHO OVERVIEW ---
+    public OverviewPanel getOverviewPanel() { return overviewPanel; }
 }

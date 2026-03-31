@@ -5,6 +5,8 @@ import com.hospital.app.service.BenhNhanService;
 import com.hospital.app.service.HoaDonService;
 import com.hospital.app.service.KhoaService;
 import com.hospital.app.service.PhongBenhService;
+import com.hospital.app.service.TaiKhoanService;
+import com.hospital.app.service.ThongKeService;
 import com.hospital.app.view.MainForm;
 
 public class MainFormController {
@@ -17,8 +19,11 @@ public class MainFormController {
     private final PhongBenhService phongBenhService = new PhongBenhService();
     private final KhoaService khoaService = new KhoaService();
     private final HoaDonService hoaDonService = new HoaDonService();
+    private final ThongKeService thongKeService = new ThongKeService();
+    private final TaiKhoanService taiKhoanService = new TaiKhoanService();
 
     // Tab Controllers
+    private OverviewController overviewController;
     private BenhNhanTabController benhNhanTabController;
     private BacSiTabController bacSiTabController;
     private PhongBenhTabController phongBenhTabController;
@@ -29,6 +34,7 @@ public class MainFormController {
     }
 
     private void initControllers() {
+        overviewController = new OverviewController(view, thongKeService, taiKhoanService);
         benhNhanTabController = new BenhNhanTabController(
                 view, benhNhanService, bacSiService, phongBenhService, hoaDonService);
         bacSiTabController = new BacSiTabController(view, bacSiService, khoaService);
