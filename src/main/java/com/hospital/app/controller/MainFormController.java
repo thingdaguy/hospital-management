@@ -1,12 +1,6 @@
 package com.hospital.app.controller;
 
-import com.hospital.app.service.BacSiService;
-import com.hospital.app.service.BenhNhanService;
-import com.hospital.app.service.HoaDonService;
-import com.hospital.app.service.KhoaService;
-import com.hospital.app.service.PhongBenhService;
-import com.hospital.app.service.TaiKhoanService;
-import com.hospital.app.service.ThongKeService;
+import com.hospital.app.service.*;
 import com.hospital.app.view.MainForm;
 
 public class MainFormController {
@@ -27,7 +21,7 @@ public class MainFormController {
     private BenhNhanTabController benhNhanTabController;
     private BacSiTabController bacSiTabController;
     private PhongBenhTabController phongBenhTabController;
-
+    private CaTrucTabController caTrucTabController;
     public MainFormController(MainForm view) {
         this.view = view;
         initControllers();
@@ -39,5 +33,6 @@ public class MainFormController {
                 view, benhNhanService, bacSiService, phongBenhService, hoaDonService);
         bacSiTabController = new BacSiTabController(view, bacSiService, khoaService);
         phongBenhTabController = new PhongBenhTabController(view, phongBenhService);
+        caTrucTabController = new CaTrucTabController(view, new CaTrucService());
     }
 }
