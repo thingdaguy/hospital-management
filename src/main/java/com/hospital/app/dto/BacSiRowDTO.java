@@ -20,4 +20,5 @@ public class BacSiRowDTO {
     private LocalDate ngayVaoLam;
     private String chuyenMon;
     private String tenKhoa;
+
 }

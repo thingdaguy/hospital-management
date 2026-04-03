@@ -134,7 +134,19 @@ public class BenhNhanTabController {
         }
         try {
             var hoaDons = hoaDonService.listByBenhNhan(id);
-            HoaDonDialog dlg = new HoaDonDialog(view, "Hóa Đơn Của Bệnh Nhân: " + id, hoaDons);
+            HoaDonDialog dlg = new HoaDonDialog(view, "Hóa Đơn Của Bệnh Nhân: " + id, hoaDons, maHoaDon -> {
+                try {
+                    var chiTiet = hoaDonService.getChiTietHoaDon(maHoaDon);
+                    if (chiTiet != null) {
+                        com.hospital.app.view.ChiTietHoaDonDialog chiTietDlg = new com.hospital.app.view.ChiTietHoaDonDialog(view, maHoaDon, chiTiet);
+                        chiTietDlg.setVisible(true);
+                    } else {
+                        JOptionPane.showMessageDialog(view, "Không tìm thấy chi tiết cho hóa đơn " + maHoaDon, "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(view, "Lỗi khi tải chi tiết: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                }
+            });
             dlg.setVisible(true);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(view, "Lỗi khi tải hóa đơn: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);

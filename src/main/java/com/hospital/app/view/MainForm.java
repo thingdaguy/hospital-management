@@ -5,19 +5,19 @@ import com.hospital.app.dto.BenhNhanRowDTO;
 import com.hospital.app.dto.CaTrucRowDTO;
 import com.hospital.app.dto.PhongBenhRowDTO;
 
-import com.hospital.app.view.CaTrucDialog;
+
 
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.RoundRectangle2D;
+
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * MainForm — form chính với giao diện hiện đại: Header + Sidebar + Content Area.
+ * MainForm : Header + Sidebar + Content Area.
 
  */
 public class MainForm extends JFrame {
@@ -25,7 +25,7 @@ public class MainForm extends JFrame {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     //  Màu sắc theme
-    private static final Color SIDEBAR_BG       = new Color(0x1A73C8);   // xanh dương đậm
+    private static final Color SIDEBAR_BG       = new Color(0x1A73C8);
     private static final Color SIDEBAR_HOVER    = new Color(0x1558A0);
     private static final Color SIDEBAR_SELECTED = new Color(0x0D3F7A);
     private static final Color HEADER_BG        = new Color(0xF0F6FF);
@@ -35,7 +35,7 @@ public class MainForm extends JFrame {
     private static final Color TEXT_PRIMARY     = new Color(0x1A1A2E);
     private static final Color ACCENT           = new Color(0x1A73C8);
 
-    // ontrols Bệnh Nhân
+    // Controls Bệnh Nhân
     private final JTextField searchFieldBN  = new JTextField(15);
     private final JButton btnSearchBN       = createActionButton(" Tìm", ACCENT);
     private final JButton btnRefreshBN      = createActionButton(" Tải lại", ACCENT);
@@ -96,7 +96,7 @@ public class MainForm extends JFrame {
         setMinimumSize(new Dimension(900, 550));
         setLocationRelativeTo(null);
 
-        // ── Build tables ──────────────────────────────────────────────────────
+        // Build tables
         tableModelBN = createTableModel(new String[]{
                 "Mã BN", "Họ tên", "Ngày sinh", "Điện thoại",
                 "Bác sĩ tiếp nhận", "Mã phòng", "Loại phòng"
@@ -104,7 +104,7 @@ public class MainForm extends JFrame {
         tableBN = createTable(tableModelBN);
 
         tableModelBS = createTableModel(new String[]{
-                "Mã BS", "Họ tên", "Ngày vào làm", "Chuyên môn", "Tên khoa","Ca trực"
+                "Mã BS", "Họ tên", "Ngày vào làm", "Chuyên môn", "Tên khoa"
         });
         tableBS = createTable(tableModelBS);
 
