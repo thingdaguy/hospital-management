@@ -14,6 +14,9 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.function.Consumer;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class HoaDonDialog extends JDialog {
 
@@ -21,7 +24,7 @@ public class HoaDonDialog extends JDialog {
     private final DefaultTableModel tableModel;
     private final JTable table;
 
-    public HoaDonDialog(JFrame parent, String title, List<HoaDonRowDTO> hoaDons) {
+    public HoaDonDialog(JFrame parent, String title, List<HoaDonRowDTO> hoaDons, Consumer<String> onInvoiceDoubleClicked) {
         super(parent, title, true);
         setSize(600, 400);
         setLocationRelativeTo(parent);
@@ -36,6 +39,18 @@ public class HoaDonDialog extends JDialog {
         table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
         table.setRowHeight(22);
+
+        if (onInvoiceDoubleClicked != null) {
+            table.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getClickCount() == 2 && table.getSelectedRow() != -1) {
+                        String maHoaDon = tableModel.getValueAt(table.getSelectedRow(), 0).toString();
+                        onInvoiceDoubleClicked.accept(maHoaDon);
+                    }
+                }
+            });
+        }
 
         populateTable(hoaDons);
 

@@ -56,9 +56,11 @@ public class OverviewPanel extends JPanel {
     private JPanel createSummaryCard(String title, JLabel valueLabel, Color bgColor) {
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(bgColor);
+        card.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(bgColor.darker(), 1),
                 BorderFactory.createEmptyBorder(15, 15, 15, 15)
+
         ));
 
         JLabel lblTitle = new JLabel(title);

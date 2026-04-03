@@ -24,13 +24,15 @@ System.out.println(hash);
         System.out.println("DB_USER=" + System.getProperty("DB_USER"));
         SwingUtilities.invokeLater(() -> {
             try {
+
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Exception ignored) {
-                // giữ LAF mặc định nếu không set được
+            } catch (Exception ignored) {// giữ LAF mặc định nếu không set được
             }
-            LoginForm loginForm = new LoginForm();
+            new LoginForm().setVisible(true);
+
+
             Runtime.getRuntime().addShutdownHook(new Thread(JpaUtil::shutdown));
-            loginForm.setVisible(true);
+
         });
     }
 }

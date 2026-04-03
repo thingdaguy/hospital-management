@@ -236,20 +236,24 @@ INSERT INTO luot_dieu_tri (ma_luot, ngay_dieu_tri, thoi_gian, ket_qua, ma_bac_si
 ('LDT01', '2025-03-10', '09:30:00', 'Stable condition, continue treatment', 'BS01', 'BN001'),
 ('LDT02', '2025-03-11', '10:00:00', 'Abdominal pain reduced', 'BS02', 'BN002'),
 ('LDT03', '2025-03-12', '08:15:00', 'No infection, healing well', 'BS03', 'BN003'),
-('LDT04', '2025-03-13', '14:45:00', 'Fever reduced, continue antibiotics', 'BS04', 'BN004'),
-('LDT05', '2025-03-14', '11:00:00', 'Normal pregnancy', 'BS05', 'BN005');
+('LDT04', '2025-03-15', '14:45:00', 'Fever reduced, continue antibiotics', 'BS04', 'BN004'),
+('LDT05', '2025-03-14', '11:00:00', 'Normal pregnancy', 'BS05', 'BN005'),
+('LDT06', '2025-03-18', '09:00:00', 'Follow-up check', 'BS01', 'BN001');
 
 INSERT INTO chi_tiet_dich_vu (ma_luot, ma_dich_vu) VALUES
 ('LDT01', 'DV01'), ('LDT01', 'DV04'),
 ('LDT02', 'DV01'), ('LDT02', 'DV03'),
 ('LDT03', 'DV02'),
 ('LDT04', 'DV01'), ('LDT04', 'DV04'),
-('LDT05', 'DV03');
+('LDT05', 'DV03'),
+('LDT06', 'DV01');
 
 INSERT INTO don_thuoc (ma_don, ngay_ke, ghi_chu, ma_luot) VALUES
 ('DT01', '2025-03-10', 'Take after meals', 'LDT01'),
 ('DT02', '2025-03-11', NULL, 'LDT02'),
-('DT03', '2025-03-12', 'Use for pain if needed', 'LDT03');
+('DT03', '2025-03-12', 'Use for pain if needed', 'LDT03'),
+('DT04', '2025-03-15', 'Take strictly', 'LDT04'),
+('DT05', '2025-03-18', 'Follow up', 'LDT06');
 
 INSERT INTO thuoc (ma_thuoc, ten_thuoc, thanh_phan, gia_ban) VALUES
 ('TH01', 'Metformin 500mg', 'Metformin', 5000),
@@ -261,10 +265,13 @@ INSERT INTO chi_tiet_don_thuoc (ma_don, ma_thuoc, so_luong) VALUES
 ('DT01', 'TH01', 60),
 ('DT01', 'TH03', 20),
 ('DT02', 'TH02', 28),
-('DT03', 'TH03', 10);
+('DT03', 'TH03', 10),
+('DT04', 'TH04', 14),
+('DT05', 'TH03', 10);
 
 INSERT INTO hoa_don (ma_hoa_don, ngay_lap, tong_tien, trang_thai, ma_benh_nhan) VALUES
-('HD01', '2025-03-10', 850000, 'Paid', 'BN001'),
-('HD02', '2025-03-11', 1200000, 'Pending', 'BN002'),
-('HD03', '2025-03-12', 450000, 'Paid', 'BN003'),
-('HD04', '2025-03-15', 200000, 'Paid', 'BN004');
+('HD01', '2025-03-10', 840000, 'Paid', 'BN001'),
+('HD02', '2025-03-11', 874000, 'Pending', 'BN002'),
+('HD03', '2025-03-12', 370000, 'Paid', 'BN003'),
+('HD04', '2025-03-15', 668000, 'Paid', 'BN004'),
+('HD05', '2025-03-18', 220000, 'Paid', 'BN001');
