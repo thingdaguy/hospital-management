@@ -10,9 +10,13 @@ import com.hospital.app.service.BenhNhanService;
 import com.hospital.app.service.HoaDonService;
 import com.hospital.app.service.LuotDieuTriService;
 import com.hospital.app.service.PhongBenhService;
+import com.hospital.app.service.DonThuocService;
+import com.hospital.app.service.ThuocService;
 import com.hospital.app.view.HoaDonDialog;
 import com.hospital.app.view.LuotDieuTriDialog;
 import com.hospital.app.view.MainForm;
+import com.hospital.app.view.PrescriptionDialog;
+import com.hospital.app.entity.Thuoc;
 
 import javax.swing.*;
 import java.util.HashMap;
@@ -31,19 +35,24 @@ public class LuotDieuTriTabController {
     private final BacSiService bacSiService;
     private final PhongBenhService phongBenhService;
     private final HoaDonService hoaDonService;
+    private final DonThuocService donThuocService;
+    private final ThuocService thuocService;
 
     /**
      * Khởi tạo controller bằng cách inject các service cần thiết và găn sự kiện UI.
      */
     public LuotDieuTriTabController(MainForm view, LuotDieuTriService luotDieuTriService,
                                     BenhNhanService benhNhanService, BacSiService bacSiService,
-                                    PhongBenhService phongBenhService, HoaDonService hoaDonService) {
+                                    PhongBenhService phongBenhService, HoaDonService hoaDonService,
+                                    DonThuocService donThuocService, ThuocService thuocService) {
         this.view = view;
         this.luotDieuTriService = luotDieuTriService;
         this.benhNhanService = benhNhanService;
         this.bacSiService = bacSiService;
         this.phongBenhService = phongBenhService;
         this.hoaDonService = hoaDonService;
+        this.donThuocService = donThuocService;
+        this.thuocService = thuocService;
         wireEvents();
     }
 
@@ -62,6 +71,8 @@ public class LuotDieuTriTabController {
         view.getBtnEditLDT().addActionListener(e -> editEncounter());
         // Sự kiện Xem lịch sử hóa đơn
         view.getBtnInvoiceLDT().addActionListener(e -> showInvoices());
+        // Sự kiện Kê đơn thuốc
+        view.getBtnPrescribeLDT().addActionListener(e -> prescribe());
         // Sự kiện Thực hiện thủ tục xuất viện
         view.getBtnDischargeLDT().addActionListener(e -> discharge());
         
@@ -215,7 +226,7 @@ public class LuotDieuTriTabController {
         }
 
         try {
-            LuotDieuTri ldt = luotDieuTriService.findById(id);
+            LuotDieuTri ldt = luotDieuTriService.findByIdWithDetails(id);
             if (ldt == null) return;
             
             // Lấy lịch sử hóa đơn của bệnh nhân
@@ -274,6 +285,41 @@ public class LuotDieuTriTabController {
         } catch (Exception ex) {
             // Xử lý lỗi trong quá trình lập hóa đơn hoặc cập nhật DB
             JOptionPane.showMessageDialog(view, "Lỗi khi thực hiện quy trình xuất viện: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Mở form kê đơn thuốc cho bệnh nhân đang trong lượt điều trị.
+     */
+    private void prescribe() {
+        String id = view.getSelectedEncounterId();
+        if (id == null) {
+            JOptionPane.showMessageDialog(view, "Vui lòng chọn lượt điều trị để kê đơn.", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            LuotDieuTri ldt = luotDieuTriService.findByIdWithDetails(id);
+            if (ldt == null) return;
+
+            // Chặn kê đơn nếu bệnh nhân đã xuất viện
+            if (ldt.getNgayKetThuc() != null) {
+                JOptionPane.showMessageDialog(view, "Bệnh nhân đã xuất viện, không thể kê đơn mới!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Tải danh sách thuốc để doctor chọn
+            List<Thuoc> allThuoc = thuocService.findAll();
+            PrescriptionDialog dlg = new PrescriptionDialog(view, "Kê Đơn Thuốc - " + ldt.getBenhNhan().getTenBenhNhan(), allThuoc);
+            dlg.setVisible(true);
+
+            if (dlg.isOk()) {
+                // Thực hiện lưu đơn thuốc qua Service
+                donThuocService.prescribe(ldt.getMaLuot(), dlg.getGhiChu(), dlg.getItems());
+                JOptionPane.showMessageDialog(view, "Đã kê đơn thuốc thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(view, "Lỗi khi kê đơn: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

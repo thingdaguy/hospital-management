@@ -19,6 +19,8 @@ public class MainFormController {
     private final HoaDonService hoaDonService = new HoaDonService();
     private final ThongKeService thongKeService = new ThongKeService();
     private final LuotDieuTriService luotDieuTriService = new LuotDieuTriService();
+    private final ThuocService thuocService = new ThuocService();
+    private final DonThuocService donThuocService = new DonThuocService();
 
     /**
      * Hàm khởi tạo MainFormController.
@@ -40,10 +42,12 @@ public class MainFormController {
         // Tab Quản lý bệnh nhân
         new BenhNhanTabController(view, benhNhanService);
         // Tab Quản lý lượt điều trị (Tiếp nhận & Xuất viện)
-        new LuotDieuTriTabController(view, luotDieuTriService, benhNhanService, bacSiService, phongBenhService, hoaDonService);
+        new LuotDieuTriTabController(view, luotDieuTriService, benhNhanService, bacSiService, phongBenhService, hoaDonService, donThuocService, thuocService);
         // Tab Quản lý bác sĩ
         new BacSiTabController(view, bacSiService, khoaService);
         // Tab Quản lý phòng bệnh
         new PhongBenhTabController(view, phongBenhService);
+        // Tab Quản lý thuốc
+        new ThuocTabController(view, thuocService);
     }
 }
