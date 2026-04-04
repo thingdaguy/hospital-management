@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,13 +33,16 @@ public class LuotDieuTri {
     @Column(name = "ma_luot", length = 20)
     private String maLuot;
 
-    @Column(name = "ngay_dieu_tri", nullable = false)
-    private LocalDate ngayDieuTri;
+    @Column(name = "ngay_bat_dau", nullable = false)
+    private LocalDate ngayBatDau;
 
-    @Column(name = "thoi_gian", nullable = false)
-    private LocalTime thoiGian;
+    @Column(name = "ngay_ket_thuc")
+    private LocalDate ngayKetThuc;
 
-    @Column(name = "ket_qua", nullable = false, length = 500)
+    @Column(name = "trang_thai", nullable = false, length = 50)
+    private String trangThai;
+
+    @Column(name = "ket_qua", length = 500)
     private String ketQua;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -49,6 +52,13 @@ public class LuotDieuTri {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ma_benh_nhan", nullable = false)
     private BenhNhan benhNhan;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ma_phong")
+    private PhongBenh phongBenh;
+
+    @OneToOne(mappedBy = "luotDieuTri", fetch = FetchType.LAZY)
+    private HoaDon hoaDon;
 
     @OneToMany(mappedBy = "luotDieuTri")
     private List<ChiTietDichVu> chiTietDichVus = new ArrayList<>();

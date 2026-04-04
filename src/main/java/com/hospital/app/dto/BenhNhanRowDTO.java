@@ -20,6 +20,8 @@ public class BenhNhanRowDTO {
     private String tenBenhNhan;
     private LocalDate ngaySinh;
     private String soDienThoai;
+    /** Số thẻ BHYT (null nếu bệnh nhân không có bảo hiểm) */
+    private String soTheBHYT;
     private String tenBacSiTiepNhan;
     private String maPhong;
     private String loaiPhong;

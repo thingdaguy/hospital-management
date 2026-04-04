@@ -8,126 +8,161 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * LoginForm — giao dien dang nhap (icon '+' ben trai, form ben phai).
+ * LoginForm — giao diện đăng nhập, icon bên trái, form bên phải.
  */
 public class LoginForm extends JFrame {
 
-    private final JTextField txtUsername = new JTextField(22);
-    private final JPasswordField txtPassword = new JPasswordField(22);
-    private final JLabel lblError = new JLabel(" ");
+    private final JTextField    txtUsername = new JTextField(18);
+    private final JPasswordField txtPassword = new JPasswordField(18);
+    private final JLabel         lblError    = new JLabel(" ");
 
     private final AuthService authService = new AuthService();
 
     public LoginForm() {
-        super("Đăng nhập - Hospital");
+        super("Hệ thống Quản lý Khám Chữa Bệnh");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(950, 560);
         setLocationRelativeTo(null);
-
         setLayout(new BorderLayout());
 
-        // Chia 2 vung: trai (icon) / phai (login form)
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setDividerSize(0);
-        splitPane.setResizeWeight(0.35);
-
+        // ── Trái: panel icon ────────────────────────────────────────────────
         JPanel left = new JPanel(new BorderLayout());
         left.setBackground(new Color(245, 250, 255));
         left.add(new PlusIconPanel(), BorderLayout.CENTER);
+        left.setPreferredSize(new Dimension(320, 0));
 
-        JPanel right = new JPanel();
+        // ── Phải: panel form ────────────────────────────────────────────────
+        JPanel right = new JPanel(new GridBagLayout());
         right.setBackground(Color.WHITE);
-        right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
 
-        right.add(Box.createVerticalStrut(30));
-        JLabel header1 = new JLabel("Chào mừng đến Bệnh viện");
-        header1.setFont(new Font("SansSerif", Font.BOLD, 24));
+        // Panel con dọc chứa tiêu đề + form — đặt vào giữa bằng GridBagLayout
+        JPanel inner = new JPanel();
+        inner.setOpaque(false);
+        inner.setLayout(new BoxLayout(inner, BoxLayout.Y_AXIS));
+
+        // Tiêu đề
+        JLabel header1 = new JLabel("Hệ thống Quản lý Khám Chữa Bệnh", JLabel.CENTER);
+        header1.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        header1.setForeground(new Color(0x1A73C8));
         header1.setAlignmentX(Component.CENTER_ALIGNMENT);
-        right.add(header1);
 
-        JLabel header2 = new JLabel("Đăng nhập để tiếp tục");
-        header2.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        header2.setForeground(new Color(60, 60, 60));
+        JLabel header2 = new JLabel("Đăng nhập để tiếp tục", JLabel.CENTER);
+        header2.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        header2.setForeground(new Color(100, 100, 100));
         header2.setAlignmentX(Component.CENTER_ALIGNMENT);
-        right.add(header2);
 
-        right.add(Box.createVerticalStrut(35));
-
-        JPanel form = new JPanel();
+        // Form inputs
+        JPanel form = new JPanel(new GridBagLayout());
         form.setOpaque(false);
-        form.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(10, 10, 10, 10);
-        c.anchor = GridBagConstraints.WEST;
+        GridBagConstraints gc = new GridBagConstraints();
+        gc.insets = new Insets(8, 8, 8, 8);
 
-        c.gridx = 0;
-        c.gridy = 0;
-        form.add(new JLabel("Tên đăng nhập:"), c);
+        // Label tên đăng nhập
+        gc.gridx = 0; gc.gridy = 0; gc.anchor = GridBagConstraints.EAST; gc.fill = GridBagConstraints.NONE; gc.weightx = 0;
+        form.add(makeLabel("Tên đăng nhập:"), gc);
 
-        c.gridx = 1;
-        c.gridy = 0;
-        form.add(txtUsername, c);
+        // Field tên đăng nhập
+        gc.gridx = 1; gc.gridy = 0; gc.anchor = GridBagConstraints.WEST; gc.fill = GridBagConstraints.HORIZONTAL; gc.weightx = 1;
+        styleField(txtUsername);
+        form.add(txtUsername, gc);
 
-        c.gridx = 0;
-        c.gridy = 1;
-        form.add(new JLabel("Mật khẩu:"), c);
+        // Label mật khẩu
+        gc.gridx = 0; gc.gridy = 1; gc.anchor = GridBagConstraints.EAST; gc.fill = GridBagConstraints.NONE; gc.weightx = 0;
+        form.add(makeLabel("Mật khẩu:"), gc);
 
-        c.gridx = 1;
-        c.gridy = 1;
-        txtPassword.setEchoChar('*');
-        form.add(txtPassword, c);
+        // Field mật khẩu
+        gc.gridx = 1; gc.gridy = 1; gc.anchor = GridBagConstraints.WEST; gc.fill = GridBagConstraints.HORIZONTAL; gc.weightx = 1;
+        txtPassword.setEchoChar('●');
+        styleField(txtPassword);
+        form.add(txtPassword, gc);
 
-        c.gridx = 0;
-        c.gridy = 2;
-        c.gridwidth = 2;
+        // Error label
+        gc.gridx = 0; gc.gridy = 2; gc.gridwidth = 2; gc.anchor = GridBagConstraints.CENTER;
         lblError.setForeground(new Color(200, 0, 0));
-        lblError.setAlignmentX(Component.LEFT_ALIGNMENT);
-        lblError.setText(" ");
-        form.add(lblError, c);
+        lblError.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        form.add(lblError, gc);
 
-        c.gridx = 0;
-        c.gridy = 3;
-        c.gridwidth = 2;
-        c.anchor = GridBagConstraints.CENTER;
+        // Nút đăng nhập
+        JButton btnLogin = new JButton("  Đăng nhập  ");
+        btnLogin.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnLogin.setBackground(new Color(0x1A73C8));
+        btnLogin.setForeground(Color.WHITE);
+        btnLogin.setOpaque(true);
+        btnLogin.setContentAreaFilled(true);
+        btnLogin.setBorderPainted(false);
+        btnLogin.setFocusPainted(false);
+        btnLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnLogin.setPreferredSize(new Dimension(200, 36));
+        btnLogin.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override public void mouseEntered(java.awt.event.MouseEvent e) { btnLogin.setBackground(new Color(0x1558A0)); }
+            @Override public void mouseExited(java.awt.event.MouseEvent e)  { btnLogin.setBackground(new Color(0x1A73C8)); }
+        });
 
-        JButton btnLogin = new JButton("Đăng nhập (ADMIN)");
-        btnLogin.setPreferredSize(new Dimension(220, 38));
-        form.add(btnLogin, c);
+        gc.gridx = 0; gc.gridy = 3; gc.gridwidth = 2; gc.anchor = GridBagConstraints.CENTER; gc.fill = GridBagConstraints.NONE;
+        form.add(btnLogin, gc);
 
-        right.add(form);
-        right.add(Box.createVerticalGlue());
+        // Ghép inner panel
+        inner.add(header1);
+        inner.add(Box.createVerticalStrut(4));
+        inner.add(header2);
+        inner.add(Box.createVerticalStrut(28));
+        inner.add(form);
 
-        splitPane.setLeftComponent(left);
-        splitPane.setRightComponent(right);
-        add(splitPane, BorderLayout.CENTER);
+        // Đặt inner vào giữa right bằng GridBagLayout mặc định (CENTER)
+        right.add(inner);
 
-        // Cho phép nhấn Enter để đăng nhập
+        // Enter = đăng nhập
         getRootPane().setDefaultButton(btnLogin);
         txtPassword.addActionListener(e -> btnLogin.doClick());
-
         btnLogin.addActionListener(e -> doLogin());
+
+        // ── Chia 2 vùng ─────────────────────────────────────────────────────
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, right);
+        split.setDividerSize(0);
+        split.setEnabled(false);
+        add(split, BorderLayout.CENTER);
     }
 
     private void doLogin() {
         lblError.setText(" ");
-        String username = txtUsername.getText();
-        String rawPassword = new String(txtPassword.getPassword());
-
+        String username  = txtUsername.getText();
+        String rawPwd    = new String(txtPassword.getPassword());
         try {
-            TaiKhoan tk = authService.loginAdmin(username, rawPassword);
+            TaiKhoan tk = authService.loginAdmin(username, rawPwd);
             if (tk != null) {
                 SwingUtilities.invokeLater(() -> {
-                    dispose();
-                    MainForm frame = new MainForm();
-                    new MainFormController(frame);
-                    frame.setVisible(true);
+                    try {
+                        dispose();
+                        MainForm frame = new MainForm();
+                        new MainFormController(frame);
+                        frame.setVisible(true);
+                    } catch (Throwable t) {
+                        t.printStackTrace();
+                        JOptionPane.showMessageDialog(null, "Lỗi khi nạp giao diện: " + t.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        System.exit(1);
+                    }
                 });
             } else {
-                lblError.setText("Đăng nhập thất bại. Kiểm tra tài khoản/mật khẩu và vai trò ADMIN.");
+                lblError.setText("Đăng nhập thất bại. Kiểm tra tài khoản / mật khẩu.");
             }
         } catch (Exception ex) {
             lblError.setText("Lỗi: " + ex.getMessage());
         }
+    }
+
+    private JLabel makeLabel(String text) {
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        lbl.setForeground(new Color(60, 60, 60));
+        return lbl;
+    }
+
+    private void styleField(JTextField tf) {
+        tf.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        tf.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(0xC8D8EE), 1, true),
+                BorderFactory.createEmptyBorder(4, 8, 4, 8)
+        ));
     }
 
     /**
@@ -140,14 +175,12 @@ public class LoginForm extends JFrame {
             Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            int w = getWidth();
-            int h = getHeight();
+            int w = getWidth(), h = getHeight();
             int size = Math.min(w, h) - 60;
-            int cx = w / 2;
-            int cy = h / 2 - 20;
+            int cx = w / 2, cy = h / 2 - 20;
+            int r = size / 2;
 
             // Vòng tròn nền
-            int r = size / 2;
             g2.setColor(new Color(0, 156, 120));
             g2.fillOval(cx - r, cy - r, r * 2, r * 2);
 
@@ -156,22 +189,20 @@ public class LoginForm extends JFrame {
             g2.setStroke(new BasicStroke(6));
             g2.drawOval(cx - r, cy - r, r * 2, r * 2);
 
-            // Dấu '+' (nét dày)
+            // Dấu '+'
             g2.setColor(Color.WHITE);
             g2.setStroke(new BasicStroke(14, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
             int plusLen = (int) (r * 0.45);
-            g2.drawLine(cx - plusLen, cy, cx + plusLen, cy); // ngang
-            g2.drawLine(cx, cy - plusLen, cx, cy + plusLen); // dọc
+            g2.drawLine(cx - plusLen, cy, cx + plusLen, cy);
+            g2.drawLine(cx, cy - plusLen, cx, cy + plusLen);
 
-            // Chữ dưới icon
+            // Tên hệ thống dưới icon
             g2.setColor(new Color(20, 70, 120));
-            String text = "BỆNH VIỆN";
-            Font font = new Font("SansSerif", Font.BOLD, 22);
+            String text = "HealthSphere";
+            Font font = new Font("Segoe UI", Font.BOLD, 22);
             g2.setFont(font);
             FontMetrics fm = g2.getFontMetrics(font);
-            int tw = fm.stringWidth(text);
-            g2.drawString(text, cx - tw / 2, cy + r + 35);
+            g2.drawString(text, cx - fm.stringWidth(text) / 2, cy + r + 35);
         }
     }
 }
-

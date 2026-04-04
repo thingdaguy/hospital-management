@@ -36,7 +36,4 @@ public class Khoa {
 
     @OneToMany(mappedBy = "khoa")
     private List<BacSi> bacSis = new ArrayList<>();
-
-    @OneToMany(mappedBy = "khoa")
-    private List<YTa> yTas = new ArrayList<>();
 }

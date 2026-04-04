@@ -13,15 +13,18 @@ import java.util.List;
 public class KhoaDAO {
 
     /**
-     * Lấy danh sách toàn bộ khoa phục vụ cho ComboBox.
+     * Truy xuất toàn bộ danh sách các Khoa hiện có trong hệ thống.
+     * Dữ liệu được sắp xếp theo tên khoa để hiển thị thuận tiện trên UI.
      */
     public List<Khoa> findAll() {
         EntityManager em = JpaUtil.getEntityManager();
         try {
+            // JPQL: Lấy thực thể Khoa và sắp xếp theo tên (ASC mặc định)
             String jpql = "SELECT k FROM Khoa k ORDER BY k.tenKhoa";
             TypedQuery<Khoa> q = em.createQuery(jpql, Khoa.class);
             return q.getResultList();
         } finally {
+            // Đảm bảo đóng kết nối để tối ưu bộ nhớ
             em.close();
         }
     }

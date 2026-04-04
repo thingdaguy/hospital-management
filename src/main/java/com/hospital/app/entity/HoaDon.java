@@ -5,7 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Thực thể Hóa đơn — thuộc một {@link BenhNhan}.
+ * Thực thể Hóa đơn — thuộc một {@link LuotDieuTri}.
  */
 @Entity
 @Table(name = "hoa_don")
@@ -39,7 +39,7 @@ public class HoaDon {
     @Column(name = "trang_thai", nullable = false, length = 50)
     private String trangThai;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ma_benh_nhan", nullable = false)
-    private BenhNhan benhNhan;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ma_luot", nullable = false, unique = true)
+    private LuotDieuTri luotDieuTri;
 }

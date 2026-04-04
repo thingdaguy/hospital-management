@@ -2,8 +2,8 @@ package com.hospital.app.view;
 
 import com.hospital.app.dto.BacSiRowDTO;
 import com.hospital.app.dto.BenhNhanRowDTO;
-import com.hospital.app.dto.CaTrucRowDTO;
 import com.hospital.app.dto.PhongBenhRowDTO;
+import com.hospital.app.dto.LuotDieuTriRowDTO;
 
 
 
@@ -42,9 +42,19 @@ public class MainForm extends JFrame {
     private final JButton btnAddBN          = createActionButton(" Thêm", ACCENT);
     private final JButton btnEditBN         = createActionButton(" Sửa", ACCENT);
     private final JButton btnDeleteBN       = createActionButton(" Xóa",ACCENT);
-    private final JButton btnInvoiceBN      = createActionButton(" Hóa Đơn",ACCENT);
     private final DefaultTableModel tableModelBN;
     private final JTable tableBN;
+    
+    // Controls Lượt Điều Trị
+    private final JTextField searchFieldLDT = new JTextField(15);
+    private final JButton btnSearchLDT      = createActionButton(" Tìm", ACCENT);
+    private final JButton btnRefreshLDT     = createActionButton(" Tải lại", ACCENT);
+    private final JButton btnAddLDT         = createActionButton(" Tiếp nhận", ACCENT);
+    private final JButton btnEditLDT        = createActionButton(" Sửa", ACCENT);
+    private final JButton btnInvoiceLDT     = createActionButton(" Hóa Đơn", ACCENT);
+    private final JButton btnDischargeLDT   = createActionButton(" Xuất Viện", new Color(0x28A745));
+    private final DefaultTableModel tableModelLDT;
+    private final JTable tableLDT;
 
     // Controls Bác Sĩ
     private final JTextField searchFieldBS  = new JTextField(15);
@@ -65,15 +75,7 @@ public class MainForm extends JFrame {
     private final JButton btnDeletePB  = createActionButton("Xóa", ACCENT);
     private final DefaultTableModel tableModelPB;
     private final JTable tablePB;
-    // Controls Ca trực
-    private final JTextField searchFieldCT  = new JTextField(15);
-    private final JButton btnSearchCT  = createActionButton("Tìm", ACCENT);
-    private final JButton btnRefreshCT = createActionButton("Tải lại", ACCENT);
-    private final JButton btnAddCT    = createActionButton("Thêm", ACCENT);
-    private final JButton btnEditCT    = createActionButton("Sửa", ACCENT);
-    private final JButton btnDeleteCT  = createActionButton("Xóa", ACCENT);
-    private final DefaultTableModel tableModelCT;
-    private final JTable tableCT;
+
     //  Overview Panel
     private final OverviewPanel overviewPanel = new OverviewPanel();
 
@@ -82,12 +84,11 @@ public class MainForm extends JFrame {
     private final JPanel contentArea   = new JPanel(cardLayout);
     private JButton activeSidebarBtn   = null;
 
-    //  Sidebar button labels
     private static final String TAB_OVERVIEW  = "Thống kê";
     private static final String TAB_PATIENT   = "Bệnh nhân";
+    private static final String TAB_ENCOUNTER = "Lượt điều trị";
     private static final String TAB_DOCTOR    = "Bác sĩ";
     private static final String TAB_ROOM      = "Phòng nội trú";
-    private static final String TAB_CATRUC = "Ca trực";
 
     public MainForm() {
         super("HealthSphere HMS — Quản lý Bệnh viện");
@@ -98,10 +99,14 @@ public class MainForm extends JFrame {
 
         // Build tables
         tableModelBN = createTableModel(new String[]{
-                "Mã BN", "Họ tên", "Ngày sinh", "Điện thoại",
-                "Bác sĩ tiếp nhận", "Mã phòng", "Loại phòng"
+                "Mã BN", "Họ tên", "Ngày sinh", "Điện thoại", "Số thẻ BHYT"
         });
         tableBN = createTable(tableModelBN);
+        
+        tableModelLDT = createTableModel(new String[]{
+                "Mã Lượt", "Tên BN", "Bác sĩ", "Khoa", "Phòng", "Ngày Khám", "Ngày Ra", "Trạng Thái"
+        });
+        tableLDT = createTable(tableModelLDT);
 
         tableModelBS = createTableModel(new String[]{
                 "Mã BS", "Họ tên", "Ngày vào làm", "Chuyên môn", "Tên khoa"
@@ -112,11 +117,6 @@ public class MainForm extends JFrame {
                 "Mã phòng", "Loại phòng", "Số giường tối đa"
         });
         tablePB = createTable(tableModelPB);
-        tableModelCT = new DefaultTableModel(
-                new String[]{"Mã ca", "Tên ca", "Bắt đầu", "Kết thúc"}, 0
-        );
-
-        tableCT = new JTable(tableModelCT);
         //  Assemble frame
         setLayout(new BorderLayout());
         add(buildHeader(),  BorderLayout.NORTH);
@@ -212,9 +212,9 @@ public class MainForm extends JFrame {
         String[][] menuItems = {
                 {"",TAB_OVERVIEW},
                 { "",TAB_PATIENT},
+                { "",TAB_ENCOUNTER},
                 { "",TAB_DOCTOR},
-                {"",TAB_ROOM},
-                {"",TAB_CATRUC}
+                {"",TAB_ROOM}
         };
         for (String[] item : menuItems) {
             JButton btn = buildSidebarButton(item[0], item[1]);
@@ -267,10 +267,9 @@ public class MainForm extends JFrame {
             // Map label → card name
             if (label.equals(TAB_OVERVIEW))  cardLayout.show(contentArea, TAB_OVERVIEW);
             else if (label.equals(TAB_PATIENT)) cardLayout.show(contentArea, TAB_PATIENT);
+            else if (label.equals(TAB_ENCOUNTER)) cardLayout.show(contentArea, TAB_ENCOUNTER);
             else if (label.equals(TAB_DOCTOR))  cardLayout.show(contentArea, TAB_DOCTOR);
             else if (label.equals(TAB_ROOM))    cardLayout.show(contentArea, TAB_ROOM);
-            else if (label.equals(TAB_CATRUC))
-                cardLayout.show(contentArea, TAB_CATRUC);
             else{
                 // Tabs chưa implement — hiển thị placeholder
                 cardLayout.show(contentArea, "placeholder_" + label);
@@ -300,8 +299,13 @@ public class MainForm extends JFrame {
         contentArea.add(buildManagementPanel(
                 "Quản lý Bệnh Nhân", "Tên bệnh nhân:",
                 searchFieldBN, btnSearchBN, btnRefreshBN,
-                btnAddBN, btnEditBN, btnDeleteBN, tableBN, btnInvoiceBN
+                btnAddBN, btnEditBN, btnDeleteBN, tableBN
         ), TAB_PATIENT);
+        contentArea.add(buildManagementPanel(
+                "Quản lý Lượt Điều Trị", "Tên bệnh nhân:",
+                searchFieldLDT, btnSearchLDT, btnRefreshLDT,
+                btnAddLDT, btnEditLDT, null, tableLDT, btnInvoiceLDT, btnDischargeLDT
+        ), TAB_ENCOUNTER);
         contentArea.add(buildManagementPanel(
                 "Quản lý Bác Sĩ", "Tên bác sĩ:",
                 searchFieldBS, btnSearchBS, btnRefreshBS,
@@ -312,11 +316,6 @@ public class MainForm extends JFrame {
                 searchFieldPB, btnSearchPB, btnRefreshPB,
                 btnAddPB, btnEditPB, btnDeletePB, tablePB
         ), TAB_ROOM);
-        contentArea.add(buildManagementPanel(
-                "Quản lý Ca Trực", "Tên ca:",
-                searchFieldCT, btnSearchCT, btnRefreshCT,
-                btnAddCT, btnEditCT, btnDeleteCT, tableCT
-        ), TAB_CATRUC);
 
 
         return contentArea;
@@ -372,9 +371,9 @@ public class MainForm extends JFrame {
         spacer.setPreferredSize(new Dimension(20, 1));
         toolbar.add(spacer);
 
-        toolbar.add(btnAdd);
-        toolbar.add(btnEdit);
-        toolbar.add(btnDelete);
+        if (btnAdd != null) toolbar.add(btnAdd);
+        if (btnEdit != null) toolbar.add(btnEdit);
+        if (btnDelete != null) toolbar.add(btnDelete);
         if (extra != null) for (JButton b : extra) if (b != null) toolbar.add(b);
 
         //  Table card
@@ -470,11 +469,25 @@ public class MainForm extends JFrame {
     public void populatePatientTable(List<BenhNhanRowDTO> rows) {
         tableModelBN.setRowCount(0);
         for (BenhNhanRowDTO r : rows) {
-            String dob   = r.getNgaySinh()     != null ? r.getNgaySinh().format(DATE_FMT)  : "";
-            String phone = r.getSoDienThoai()  != null ? r.getSoDienThoai()                : "";
+            String dob   = r.getNgaySinh()    != null ? r.getNgaySinh().format(DATE_FMT) : "";
+            String phone = r.getSoDienThoai() != null ? r.getSoDienThoai()               : "";
+            // Hiển thị số thẻ BHYT hoặc dấu gạch ngang nếu không có
+            String bhyt  = (r.getSoTheBHYT() != null && !r.getSoTheBHYT().isBlank())
+                    ? r.getSoTheBHYT() : "—";
             tableModelBN.addRow(new Object[]{
-                    r.getMaBenhNhan(), r.getTenBenhNhan(), dob, phone,
-                    r.getTenBacSiTiepNhan(), r.getMaPhong(), r.getLoaiPhong()
+                    r.getMaBenhNhan(), r.getTenBenhNhan(), dob, phone, bhyt
+            });
+        }
+    }
+    
+    public void populateEncounterTable(List<LuotDieuTriRowDTO> rows) {
+        tableModelLDT.setRowCount(0);
+        for (LuotDieuTriRowDTO r : rows) {
+            String ngayVao = r.getNgayBatDau() != null ? r.getNgayBatDau().format(DATE_FMT) : "";
+            String ngayRa = r.getNgayKetThuc() != null ? r.getNgayKetThuc().format(DATE_FMT) : "";
+            tableModelLDT.addRow(new Object[]{
+                    r.getMaLuot(), r.getTenBenhNhan(), r.getTenBacSi(), r.getTenKhoa(), r.getMaPhong(), 
+                    ngayVao, ngayRa, r.getTrangThai()
             });
         }
     }
@@ -497,20 +510,16 @@ public class MainForm extends JFrame {
             });
         }
     }
-    public void populateCaTrucTable(List<CaTrucRowDTO> list) {
-        tableModelCT.setRowCount(0);
-        for (CaTrucRowDTO r : list) {
-            tableModelCT.addRow(new Object[]{
-                    r.getMaCa(), r.getTenCa(), r.getBatDau(), r.getKetThuc()
-            });
-        }
-    }
 
 
     // --- GETTERS CHO ID ĐANG CHỌN (SELECTED ID) ---
     public String getSelectedPatientId() {
         int row = tableBN.getSelectedRow();
         return row < 0 ? null : tableModelBN.getValueAt(row, 0).toString();
+    }
+    public String getSelectedEncounterId() {
+        int row = tableLDT.getSelectedRow();
+        return row < 0 ? null : tableModelLDT.getValueAt(row, 0).toString();
     }
     public String getSelectedDoctorId() {
         int row = tableBS.getSelectedRow();
@@ -520,10 +529,6 @@ public class MainForm extends JFrame {
         int row = tablePB.getSelectedRow();
         return row < 0 ? null : tableModelPB.getValueAt(row, 0).toString();
     }
-    public String getSelectedCaTrucId() {
-        int row = tableCT.getSelectedRow();
-        return row < 0 ? null : tableModelCT.getValueAt(row, 0).toString();
-    }
 
     // --- GETTERS CHO CONTROLS BỆNH NHÂN ---
     public JTextField getSearchFieldBN()  { return searchFieldBN; }
@@ -532,7 +537,15 @@ public class MainForm extends JFrame {
     public JButton getBtnAddBN()          { return btnAddBN;      }
     public JButton getBtnEditBN()         { return btnEditBN;     }
     public JButton getBtnDeleteBN()       { return btnDeleteBN;   }
-    public JButton getBtnInvoiceBN()      { return btnInvoiceBN;  }
+    
+    // --- GETTERS CHO CONTROLS LƯỢT ĐIỀU TRỊ ---
+    public JTextField getSearchFieldLDT()  { return searchFieldLDT; }
+    public JButton getBtnSearchLDT()       { return btnSearchLDT;   }
+    public JButton getBtnRefreshLDT()      { return btnRefreshLDT;  }
+    public JButton getBtnAddLDT()          { return btnAddLDT;      }
+    public JButton getBtnEditLDT()         { return btnEditLDT;     }
+    public JButton getBtnInvoiceLDT()      { return btnInvoiceLDT;  }
+    public JButton getBtnDischargeLDT()    { return btnDischargeLDT;}
 
     // --- GETTERS CHO CONTROLS BÁC SĨ ---
     public JTextField getSearchFieldBS()  { return searchFieldBS; }
@@ -549,14 +562,6 @@ public class MainForm extends JFrame {
     public JButton getBtnAddPB()          { return btnAddPB;      }
     public JButton getBtnEditPB()         { return btnEditPB;     }
     public JButton getBtnDeletePB()       { return btnDeletePB;   }
-
-    // --- GETTERS CHO CONTROLS CA TRỰC ---
-    public JButton getBtnEditCT() { return btnEditCT; }
-    public JButton getBtnAddCT() { return btnAddCT; }
-    public JButton getBtnDeleteCT() { return btnDeleteCT; }
-    public JButton getBtnSearchCT() { return btnSearchCT; }
-    public JButton getBtnRefreshCT() { return btnRefreshCT; }
-    public JTextField getSearchFieldCT() { return searchFieldCT; }
 
     // Overview
     public OverviewPanel getOverviewPanel() { return overviewPanel; }

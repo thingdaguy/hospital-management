@@ -8,22 +8,40 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 
 /**
- * DAO bệnh nhân — truy vấn JPQL cho danh sách và (sau này) CRUD/tìm kiếm.
+ * DAO bệnh nhân — truy vấn JPQL cho danh sách và các thao tác CRUD.
  */
 public class BenhNhanDAO {
 
     /**
+     * Tìm nạp toàn bộ danh sách bệnh nhân kèm theo Bảo Hiểm.
+     * Sử dụng FETCH JOIN để tránh lỗi N+1 query.
+     */
+    public List<BenhNhan> findAll() {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            // JPQL: Lấy bệnh nhân và nạp sẵn thông tin bảo hiểm
+            String jpql = "SELECT DISTINCT b FROM BenhNhan b LEFT JOIN FETCH b.baoHiem ORDER BY b.maBenhNhan";
+            TypedQuery<BenhNhan> q = em.createQuery(jpql, BenhNhan.class);
+            return q.getResultList();
+        } finally {
+            // Đảm bảo đóng EntityManager để giải phóng tài nguyên
+            em.close();
+        }
+    }
+
+    /**
      * Lấy toàn bộ bệnh nhân kèm bác sĩ tiếp nhận và phòng (JOIN FETCH tránh N+1).
+     * Dùng cho các chức năng cần thông tin chi tiết lượt điều trị.
      */
     public List<BenhNhan> findAllWithBacSiAndPhong() {
         EntityManager em = JpaUtil.getEntityManager();
         try {
-            String jpql = """
-                    SELECT DISTINCT b FROM BenhNhan b
-                    LEFT JOIN FETCH b.bacSiTiepNhan
-                    LEFT JOIN FETCH b.phongBenh
-                    ORDER BY b.maBenhNhan
-                    """;
+            // JPQL: Truy vấn lồng để nạp sẵn các thực thể liên quan qua Lượt điều trị
+            String jpql = "SELECT DISTINCT b FROM BenhNhan b " +
+                          "LEFT JOIN FETCH b.luotDieuTris ldt " +
+                          "LEFT JOIN FETCH ldt.bacSiDieuTri " +
+                          "LEFT JOIN FETCH ldt.phongBenh " +
+                          "ORDER BY b.maBenhNhan";
             TypedQuery<BenhNhan> q = em.createQuery(jpql, BenhNhan.class);
             return q.getResultList();
         } finally {
@@ -32,21 +50,18 @@ public class BenhNhanDAO {
     }
 
     /**
-     * JPQL tìm theo tên (chứa chuỗi, không phân biệt hoa thường) — dùng cho ô tìm
-     * kiếm.
+     * Tìm kiếm bệnh nhân theo tên (không phân biệt hoa thường).
      */
     public List<BenhNhan> searchByTenContaining(String keyword) {
         EntityManager em = JpaUtil.getEntityManager();
         try {
-            String jpql = """
-                    SELECT DISTINCT b FROM BenhNhan b
-                    LEFT JOIN FETCH b.bacSiTiepNhan
-                    LEFT JOIN FETCH b.phongBenh
-                    WHERE LOWER(b.tenBenhNhan) LIKE LOWER(:kw)
-                    ORDER BY b.maBenhNhan
-                    """;
+            // JPQL: Tìm kiếm mờ theo tên bệnh nhân, kết hợp nạp thông tin bảo hiểm
+            String jpql = "SELECT DISTINCT b FROM BenhNhan b " +
+                          "LEFT JOIN FETCH b.baoHiem " +
+                          "WHERE LOWER(b.tenBenhNhan) LIKE LOWER(:kw) " +
+                          "ORDER BY b.maBenhNhan";
             TypedQuery<BenhNhan> q = em.createQuery(jpql, BenhNhan.class);
-            q.setParameter("kw", "%" + keyword.trim() + "%");
+            q.setParameter("kw", "%" + keyword + "%");
             return q.getResultList();
         } finally {
             em.close();
@@ -54,11 +69,12 @@ public class BenhNhanDAO {
     }
 
     /**
-     * Tìm bệnh nhân theo mã (ID).
+     * Lấy thông tin bệnh nhân theo ID.
      */
     public BenhNhan findById(String id) {
         EntityManager em = JpaUtil.getEntityManager();
         try {
+            // Tìm thực thể trực tiếp bằng khóa chính
             return em.find(BenhNhan.class, id);
         } finally {
             em.close();
@@ -66,26 +82,18 @@ public class BenhNhanDAO {
     }
 
     /**
-     * Thêm mới một bệnh nhân.
+     * Lưu mới một bệnh nhân vào hệ thống.
      */
     public void save(BenhNhan benhNhan) {
         EntityManager em = JpaUtil.getEntityManager();
         try {
-            em.getTransaction().begin();
-            if (benhNhan.getBacSiTiepNhan() != null) {
-                benhNhan.setBacSiTiepNhan(
-                        em.getReference(com.hospital.app.entity.BacSi.class, benhNhan.getBacSiTiepNhan().getMaBacSi()));
-            }
-            if (benhNhan.getPhongBenh() != null) {
-                benhNhan.setPhongBenh(
-                        em.getReference(com.hospital.app.entity.PhongBenh.class, benhNhan.getPhongBenh().getMaPhong()));
-            }
-            em.persist(benhNhan);
-            em.getTransaction().commit();
+            em.getTransaction().begin(); // Mở giao dịch
+            em.persist(benhNhan);        // Lưu thực thể
+            em.getTransaction().commit(); // Xác nhận lưu
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
+            // Nếu có lỗi, thực hiện quay xe (rollback) giao dịch
+            if (em.getTransaction().isActive())
                 em.getTransaction().rollback();
-            }
             throw e;
         } finally {
             em.close();
@@ -93,18 +101,18 @@ public class BenhNhanDAO {
     }
 
     /**
-     * Cập nhật thông tin bệnh nhân.
+     * Cập nhật thông tin bệnh nhân hiện tại.
      */
     public void update(BenhNhan benhNhan) {
         EntityManager em = JpaUtil.getEntityManager();
         try {
             em.getTransaction().begin();
-            em.merge(benhNhan);
+            em.merge(benhNhan);          // Hợp nhất thay đổi
             em.getTransaction().commit();
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
+            // Xử lý lỗi: Hoàn tác nếu cập nhật thất bại
+            if (em.getTransaction().isActive())
                 em.getTransaction().rollback();
-            }
             throw e;
         } finally {
             em.close();
@@ -112,7 +120,7 @@ public class BenhNhanDAO {
     }
 
     /**
-     * Xóa bệnh nhân theo mã.
+     * Xóa bệnh nhân khỏi hệ thống dựa theo ID.
      */
     public void delete(String id) {
         EntityManager em = JpaUtil.getEntityManager();
@@ -120,29 +128,14 @@ public class BenhNhanDAO {
             em.getTransaction().begin();
             BenhNhan b = em.find(BenhNhan.class, id);
             if (b != null) {
-                em.remove(b);
+                em.remove(b);            // Xóa thực thể
             }
             em.getTransaction().commit();
         } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
+            // Lỗi có thể xảy ra nếu BN đang có dữ liệu liên quan ở bảng khác
+            if (em.getTransaction().isActive())
                 em.getTransaction().rollback();
-            }
             throw e;
-        } finally {
-            em.close();
-        }
-    }
-
-    /**
-     * Đếm số lượng bệnh nhân đang ở trong một phòng.
-     */
-    public long countByPhong(String maPhong) {
-        EntityManager em = JpaUtil.getEntityManager();
-        try {
-            String jpql = "SELECT COUNT(b) FROM BenhNhan b WHERE b.phongBenh.maPhong = :maPhong";
-            TypedQuery<Long> q = em.createQuery(jpql, Long.class);
-            q.setParameter("maPhong", maPhong);
-            return q.getSingleResult();
         } finally {
             em.close();
         }
