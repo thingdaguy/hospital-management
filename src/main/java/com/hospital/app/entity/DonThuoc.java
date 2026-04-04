@@ -42,6 +42,6 @@ public class DonThuoc {
     @JoinColumn(name = "ma_luot", nullable = false)
     private LuotDieuTri luotDieuTri;
 
-    @OneToMany(mappedBy = "donThuoc")
+    @OneToMany(mappedBy = "donThuoc", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
     private List<ChiTietDonThuoc> chiTietDonThuocs = new ArrayList<>();
 }

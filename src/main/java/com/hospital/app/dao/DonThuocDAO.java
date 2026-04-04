@@ -35,10 +35,31 @@ public class DonThuocDAO {
     public List<DonThuoc> findByLuotDieuTri(String maLuot) {
         EntityManager em = JpaUtil.getEntityManager();
         try {
-            String jpql = "SELECT d FROM DonThuoc d WHERE d.luotDieuTri.maLuot = :maLuot";
+            String jpql = "SELECT d FROM DonThuoc d WHERE d.luotDieuTri.maLuot = :maLuot ORDER BY d.ngayKe DESC";
             TypedQuery<DonThuoc> q = em.createQuery(jpql, DonThuoc.class);
             q.setParameter("maLuot", maLuot);
             return q.getResultList();
+        } finally {
+            em.close();
+        }
+    }
+
+    /**
+     * Tìm đơn thuốc mới nhất của một lượt điều trị, kèm theo chi tiết.
+     */
+    public DonThuoc findLatestByLuotDieuTri(String maLuot) {
+        EntityManager em = JpaUtil.getEntityManager();
+        try {
+            String jpql = "SELECT d FROM DonThuoc d " +
+                          "LEFT JOIN FETCH d.chiTietDonThuocs ct " +
+                          "LEFT JOIN FETCH ct.thuoc " +
+                          "WHERE d.luotDieuTri.maLuot = :maLuot " +
+                          "ORDER BY d.ngayKe DESC, d.maDon DESC";
+            TypedQuery<DonThuoc> q = em.createQuery(jpql, DonThuoc.class);
+            q.setParameter("maLuot", maLuot);
+            q.setMaxResults(1);
+            List<DonThuoc> results = q.getResultList();
+            return results.isEmpty() ? null : results.get(0);
         } finally {
             em.close();
         }

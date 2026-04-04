@@ -310,13 +310,24 @@ public class LuotDieuTriTabController {
 
             // Tải danh sách thuốc để doctor chọn
             List<Thuoc> allThuoc = thuocService.findAll();
-            PrescriptionDialog dlg = new PrescriptionDialog(view, "Kê Đơn Thuốc - " + ldt.getBenhNhan().getTenBenhNhan(), allThuoc);
+
+            // Lấy dữ liệu đơn thuốc cũ (nếu có) để nạp vào dialog
+            Map<String, Object> oldData = donThuocService.findLatestDataByLuotDieuTri(id);
+            Map<String, Integer> initialItems = null;
+            String initialNote = "";
+            if (oldData != null) {
+                initialItems = (Map<String, Integer>) oldData.get("items");
+                initialNote = (String) oldData.get("ghiChu");
+            }
+
+            PrescriptionDialog dlg = new PrescriptionDialog(view, "Kê Đơn Thuốc - " + ldt.getBenhNhan().getTenBenhNhan(), 
+                                                            allThuoc, initialItems, initialNote);
             dlg.setVisible(true);
 
             if (dlg.isOk()) {
                 // Thực hiện lưu đơn thuốc qua Service
                 donThuocService.prescribe(ldt.getMaLuot(), dlg.getGhiChu(), dlg.getItems());
-                JOptionPane.showMessageDialog(view, "Đã kê đơn thuốc thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(view, "Đã cập nhật đơn thuốc thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(view, "Lỗi khi kê đơn: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);

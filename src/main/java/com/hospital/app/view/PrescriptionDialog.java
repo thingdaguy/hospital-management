@@ -29,9 +29,21 @@ public class PrescriptionDialog extends JDialog {
     private final Map<String, Integer> items = new HashMap<>();
 
     public PrescriptionDialog(Frame parent, String title, List<Thuoc> allThuoc) {
+        this(parent, title, allThuoc, null, "");
+    }
+
+    public PrescriptionDialog(Frame parent, String title, List<Thuoc> allThuoc, 
+                              Map<String, Integer> initialItems, String initialNote) {
         super(parent, title, true);
         this.allThuoc = allThuoc;
+        if (initialItems != null) {
+            this.items.putAll(initialItems);
+        }
         initComponents();
+        if (initialNote != null) {
+            txtGhiChu.setText(initialNote);
+        }
+        refreshTable();
         setSize(600, 500);
         setLocationRelativeTo(parent);
     }
