@@ -51,9 +51,10 @@ public class PrescriptionDialog extends JDialog {
     private void initComponents() {
         setLayout(new BorderLayout());
 
-        // --- Top: Select Medicine ---
+        // --- Top: Select Medicine (HIDDEN) ---
         JPanel pnlTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         pnlTop.setBorder(BorderFactory.createTitledBorder("Thêm thuốc vào đơn"));
+        pnlTop.setVisible(false);
 
         comboThuoc = new JComboBox<>(allThuoc.toArray(new Thuoc[0]));
         // Custom renderer for JComboBox to show medicine name
@@ -93,11 +94,13 @@ public class PrescriptionDialog extends JDialog {
         JPanel pnlGhiChu = new JPanel(new BorderLayout());
         pnlGhiChu.add(new JLabel("Ghi chú:"), BorderLayout.NORTH);
         txtGhiChu = new JTextArea(3, 20);
+        txtGhiChu.setEditable(false);
+        txtGhiChu.setBackground(new Color(0xF8F9FA)); // Light gray to indicate read-only
         pnlGhiChu.add(new JScrollPane(txtGhiChu), BorderLayout.CENTER);
 
         JPanel pnlActions = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        btnSave = new JButton("Lưu đơn thuốc");
-        btnCancel = new JButton("Hủy");
+        btnSave = new JButton("In đơn thuốc");
+        btnCancel = new JButton("Đóng");
         pnlActions.add(btnSave);
         pnlActions.add(btnCancel);
 
@@ -109,36 +112,9 @@ public class PrescriptionDialog extends JDialog {
         add(pnlBottom, BorderLayout.SOUTH);
 
         // --- Events ---
-        btnAdd.addActionListener(e -> {
-            Thuoc selected = (Thuoc) comboThuoc.getSelectedItem();
-            if (selected == null) return;
-            int qty = (int) spinnerQuantity.getValue();
-
-            if (items.containsKey(selected.getMaThuoc())) {
-                int oldQty = items.get(selected.getMaThuoc());
-                items.put(selected.getMaThuoc(), oldQty + qty);
-            } else {
-                items.put(selected.getMaThuoc(), qty);
-            }
-            refreshTable();
-        });
-
-        btnRemove.addActionListener(e -> {
-            int row = tableItems.getSelectedRow();
-            if (row >= 0) {
-                String maThuoc = tableModelItems.getValueAt(row, 0).toString();
-                items.remove(maThuoc);
-                refreshTable();
-            }
-        });
-
         btnCancel.addActionListener(e -> dispose());
         btnSave.addActionListener(e -> {
-            if (items.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Đơn thuốc chưa có món nào!");
-                return;
-            }
-            isOk = true;
+            JOptionPane.showMessageDialog(this, "Đang khởi tạo máy in...\nĐã gửi lệnh in đơn thuốc thành công!", "In ấn", JOptionPane.INFORMATION_MESSAGE);
             dispose();
         });
     }

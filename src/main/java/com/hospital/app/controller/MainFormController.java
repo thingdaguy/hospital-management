@@ -47,7 +47,5 @@ public class MainFormController {
         new BacSiTabController(view, bacSiService, khoaService);
         // Tab Quản lý phòng bệnh
         new PhongBenhTabController(view, phongBenhService);
-        // Tab Quản lý thuốc
-        new ThuocTabController(view, thuocService);
     }
 }

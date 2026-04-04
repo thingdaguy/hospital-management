@@ -4,7 +4,6 @@ import com.hospital.app.dto.BacSiRowDTO;
 import com.hospital.app.dto.BenhNhanRowDTO;
 import com.hospital.app.dto.PhongBenhRowDTO;
 import com.hospital.app.dto.LuotDieuTriRowDTO;
-import com.hospital.app.dto.ThuocRowDTO;
 
 
 
@@ -53,20 +52,10 @@ public class MainForm extends JFrame {
     private final JButton btnAddLDT         = createActionButton(" Tiếp nhận", ACCENT);
     private final JButton btnEditLDT        = createActionButton(" Sửa", ACCENT);
     private final JButton btnInvoiceLDT     = createActionButton(" Hóa Đơn", ACCENT);
-    private final JButton btnPrescribeLDT   = createActionButton(" Kê đơn", ACCENT);
+    private final JButton btnPrescriptionLDT = createActionButton(" Đơn thuốc", ACCENT);
     private final JButton btnDischargeLDT   = createActionButton(" Xuất Viện", new Color(0x28A745));
     private final DefaultTableModel tableModelLDT;
     private final JTable tableLDT;
-
-    // Controls Thuốc
-    private final JTextField searchFieldTH  = new JTextField(15);
-    private final JButton btnSearchTH       = createActionButton(" Tìm", ACCENT);
-    private final JButton btnRefreshTH      = createActionButton(" Tải lại", ACCENT);
-    private final JButton btnAddTH          = createActionButton(" Thêm", ACCENT);
-    private final JButton btnEditTH         = createActionButton(" Sửa", ACCENT);
-    private final JButton btnDeleteTH       = createActionButton(" Xóa", ACCENT);
-    private final DefaultTableModel tableModelTH;
-    private final JTable tableTH;
 
     // Controls Bác Sĩ
     private final JTextField searchFieldBS  = new JTextField(15);
@@ -101,7 +90,6 @@ public class MainForm extends JFrame {
     private static final String TAB_ENCOUNTER = "Lượt điều trị";
     private static final String TAB_DOCTOR    = "Bác sĩ";
     private static final String TAB_ROOM      = "Phòng nội trú";
-    private static final String TAB_MEDICINE  = "Thuốc";
 
     public MainForm() {
         super("HealthSphere HMS — Quản lý Bệnh viện");
@@ -130,11 +118,6 @@ public class MainForm extends JFrame {
                 "Mã phòng", "Loại phòng", "Số giường tối đa"
         });
         tablePB = createTable(tableModelPB);
-
-        tableModelTH = createTableModel(new String[]{
-                "Mã thuốc", "Tên thuốc", "Thành phần", "Giá bán"
-        });
-        tableTH = createTable(tableModelTH);
         //  Assemble frame
         setLayout(new BorderLayout());
         add(buildHeader(),  BorderLayout.NORTH);
@@ -232,8 +215,7 @@ public class MainForm extends JFrame {
                 { "",TAB_PATIENT},
                 { "",TAB_ENCOUNTER},
                 { "",TAB_DOCTOR},
-                {"",TAB_ROOM},
-                {"",TAB_MEDICINE}
+                {"",TAB_ROOM}
         };
         for (String[] item : menuItems) {
             JButton btn = buildSidebarButton(item[0], item[1]);
@@ -289,7 +271,6 @@ public class MainForm extends JFrame {
             else if (label.equals(TAB_ENCOUNTER)) cardLayout.show(contentArea, TAB_ENCOUNTER);
             else if (label.equals(TAB_DOCTOR))  cardLayout.show(contentArea, TAB_DOCTOR);
             else if (label.equals(TAB_ROOM))    cardLayout.show(contentArea, TAB_ROOM);
-            else if (label.equals(TAB_MEDICINE)) cardLayout.show(contentArea, TAB_MEDICINE);
             else{
                 // Tabs chưa implement — hiển thị placeholder
                 cardLayout.show(contentArea, "placeholder_" + label);
@@ -324,7 +305,7 @@ public class MainForm extends JFrame {
         contentArea.add(buildManagementPanel(
                 "Quản lý Lượt Điều Trị", "Tên bệnh nhân:",
                 searchFieldLDT, btnSearchLDT, btnRefreshLDT,
-                btnAddLDT, btnEditLDT, null, tableLDT, btnInvoiceLDT, btnPrescribeLDT, btnDischargeLDT
+                btnAddLDT, btnEditLDT, null, tableLDT, btnInvoiceLDT, btnPrescriptionLDT, btnDischargeLDT
         ), TAB_ENCOUNTER);
         contentArea.add(buildManagementPanel(
                 "Quản lý Bác Sĩ", "Tên bác sĩ:",
@@ -336,11 +317,6 @@ public class MainForm extends JFrame {
                 searchFieldPB, btnSearchPB, btnRefreshPB,
                 btnAddPB, btnEditPB, btnDeletePB, tablePB
         ), TAB_ROOM);
-        contentArea.add(buildManagementPanel(
-                "Quản lý Thuốc", "Tên thuốc:",
-                searchFieldTH, btnSearchTH, btnRefreshTH,
-                btnAddTH, btnEditTH, btnDeleteTH, tableTH
-        ), TAB_MEDICINE);
 
 
         return contentArea;
@@ -536,15 +512,6 @@ public class MainForm extends JFrame {
         }
     }
 
-    public void populateMedicineTable(List<ThuocRowDTO> rows) {
-        tableModelTH.setRowCount(0);
-        for (ThuocRowDTO r : rows) {
-            tableModelTH.addRow(new Object[]{
-                    r.getMaThuoc(), r.getTenThuoc(), r.getThanhPhan(), r.getGiaBan()
-            });
-        }
-    }
-
 
     // --- GETTERS CHO ID ĐANG CHỌN (SELECTED ID) ---
     public String getSelectedPatientId() {
@@ -563,10 +530,6 @@ public class MainForm extends JFrame {
         int row = tablePB.getSelectedRow();
         return row < 0 ? null : tableModelPB.getValueAt(row, 0).toString();
     }
-    public String getSelectedMedicineId() {
-        int row = tableTH.getSelectedRow();
-        return row < 0 ? null : tableModelTH.getValueAt(row, 0).toString();
-    }
 
     // --- GETTERS CHO CONTROLS BỆNH NHÂN ---
     public JTextField getSearchFieldBN()  { return searchFieldBN; }
@@ -583,7 +546,7 @@ public class MainForm extends JFrame {
     public JButton getBtnAddLDT()          { return btnAddLDT;      }
     public JButton getBtnEditLDT()         { return btnEditLDT;     }
     public JButton getBtnInvoiceLDT()      { return btnInvoiceLDT;  }
-    public JButton getBtnPrescribeLDT()    { return btnPrescribeLDT;}
+    public JButton getBtnPrescriptionLDT() { return btnPrescriptionLDT;}
     public JButton getBtnDischargeLDT()    { return btnDischargeLDT;}
 
     // --- GETTERS CHO CONTROLS BÁC SĨ ---
@@ -601,14 +564,6 @@ public class MainForm extends JFrame {
     public JButton getBtnAddPB()          { return btnAddPB;      }
     public JButton getBtnEditPB()         { return btnEditPB;     }
     public JButton getBtnDeletePB()       { return btnDeletePB;   }
-
-    // --- GETTERS CHO CONTROLS THUỐC ---
-    public JTextField getSearchFieldTH()  { return searchFieldTH; }
-    public JButton getBtnSearchTH()       { return btnSearchTH;   }
-    public JButton getBtnRefreshTH()      { return btnRefreshTH;  }
-    public JButton getBtnAddTH()          { return btnAddTH;      }
-    public JButton getBtnEditTH()         { return btnEditTH;     }
-    public JButton getBtnDeleteTH()       { return btnDeleteTH;   }
 
     // Overview
     public OverviewPanel getOverviewPanel() { return overviewPanel; }

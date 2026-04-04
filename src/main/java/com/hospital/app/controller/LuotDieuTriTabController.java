@@ -71,8 +71,8 @@ public class LuotDieuTriTabController {
         view.getBtnEditLDT().addActionListener(e -> editEncounter());
         // Sự kiện Xem lịch sử hóa đơn
         view.getBtnInvoiceLDT().addActionListener(e -> showInvoices());
-        // Sự kiện Kê đơn thuốc
-        view.getBtnPrescribeLDT().addActionListener(e -> prescribe());
+        // Sự kiện Xem đơn thuốc
+        view.getBtnPrescriptionLDT().addActionListener(e -> showPrescription());
         // Sự kiện Thực hiện thủ tục xuất viện
         view.getBtnDischargeLDT().addActionListener(e -> discharge());
         
@@ -289,12 +289,12 @@ public class LuotDieuTriTabController {
     }
 
     /**
-     * Mở form kê đơn thuốc cho bệnh nhân đang trong lượt điều trị.
+     * Hiển thị đơn thuốc cho bệnh nhân đang trong lượt điều trị (Chế độ Xem/In).
      */
-    private void prescribe() {
+    private void showPrescription() {
         String id = view.getSelectedEncounterId();
         if (id == null) {
-            JOptionPane.showMessageDialog(view, "Vui lòng chọn lượt điều trị để kê đơn.", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(view, "Vui lòng chọn lượt điều trị để xem đơn thuốc.", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -302,35 +302,26 @@ public class LuotDieuTriTabController {
             LuotDieuTri ldt = luotDieuTriService.findByIdWithDetails(id);
             if (ldt == null) return;
 
-            // Chặn kê đơn nếu bệnh nhân đã xuất viện
-            if (ldt.getNgayKetThuc() != null) {
-                JOptionPane.showMessageDialog(view, "Bệnh nhân đã xuất viện, không thể kê đơn mới!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            // Lấy dữ liệu đơn thuốc hiện tại
+            Map<String, Object> oldData = donThuocService.findLatestDataByLuotDieuTri(id);
+            if (oldData == null) {
+                JOptionPane.showMessageDialog(view, "Lượt điều trị này chưa có đơn thuốc nào được kê.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
 
-            // Tải danh sách thuốc để doctor chọn
+            @SuppressWarnings("unchecked")
+            Map<String, Integer> initialItems = (Map<String, Integer>) oldData.get("items");
+            String initialNote = (String) oldData.get("ghiChu");
+
+            // Tải danh sách thuốc (vẫn cần để hiển thị tên thuốc trong dialog)
             List<Thuoc> allThuoc = thuocService.findAll();
 
-            // Lấy dữ liệu đơn thuốc cũ (nếu có) để nạp vào dialog
-            Map<String, Object> oldData = donThuocService.findLatestDataByLuotDieuTri(id);
-            Map<String, Integer> initialItems = null;
-            String initialNote = "";
-            if (oldData != null) {
-                initialItems = (Map<String, Integer>) oldData.get("items");
-                initialNote = (String) oldData.get("ghiChu");
-            }
-
-            PrescriptionDialog dlg = new PrescriptionDialog(view, "Kê Đơn Thuốc - " + ldt.getBenhNhan().getTenBenhNhan(), 
+            PrescriptionDialog dlg = new PrescriptionDialog(view, "Đơn Thuốc - " + ldt.getBenhNhan().getTenBenhNhan(), 
                                                             allThuoc, initialItems, initialNote);
             dlg.setVisible(true);
 
-            if (dlg.isOk()) {
-                // Thực hiện lưu đơn thuốc qua Service
-                donThuocService.prescribe(ldt.getMaLuot(), dlg.getGhiChu(), dlg.getItems());
-                JOptionPane.showMessageDialog(view, "Đã cập nhật đơn thuốc thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(view, "Lỗi khi kê đơn: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(view, "Lỗi khi nạp đơn thuốc: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
