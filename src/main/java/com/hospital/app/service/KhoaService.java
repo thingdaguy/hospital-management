@@ -6,14 +6,15 @@ import com.hospital.app.entity.Khoa;
 import java.util.List;
 
 /**
- * Service cho Khoa.
+ * Lớp dịch vụ (Service) quản lý thông tin các Khoa trong bệnh viện.
  */
 public class KhoaService {
 
     private final KhoaDAO khoaDAO = new KhoaDAO();
 
     /**
-     * Lấy tất cả Khoa để đổ vào UI/ComboBox.
+     * Lấy toàn bộ danh mục các Khoa từ Cơ sở dữ liệu.
+     * Thường dùng để đổ dữ liệu vào các ô chọn (ComboBox) trên giao diện quản lý Bác sĩ.
      */
     public List<Khoa> findAll() {
         return khoaDAO.findAll();

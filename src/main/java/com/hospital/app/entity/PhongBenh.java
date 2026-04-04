@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,9 @@ public class PhongBenh {
     @Column(name = "so_giuong_toi_da", nullable = false)
     private Integer soGiuongToiDa;
 
+    @Column(name = "don_gia", nullable = false)
+    private BigDecimal donGia = BigDecimal.ZERO;
+
     @OneToMany(mappedBy = "phongBenh")
-    private List<BenhNhan> benhNhans = new ArrayList<>();
+    private List<LuotDieuTri> luotDieuTris = new ArrayList<>();
 }

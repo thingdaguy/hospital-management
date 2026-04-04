@@ -41,16 +41,10 @@ public class BacSi {
     @Column(name = "chuyen_mon", nullable = false, length = 200)
     private String chuyenMon;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ma_khoa", nullable = false)
     private Khoa khoa;
 
-    @OneToMany(mappedBy = "bacSiTiepNhan")
-    private List<BenhNhan> benhNhans = new ArrayList<>();
-
     @OneToMany(mappedBy = "bacSiDieuTri")
     private List<LuotDieuTri> luotDieuTris = new ArrayList<>();
-
-    @OneToMany(mappedBy = "bacSi")
-    private List<BacSiCaTruc> caTrucAssignments = new ArrayList<>();
 }

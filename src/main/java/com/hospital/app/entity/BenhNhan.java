@@ -2,10 +2,7 @@ package com.hospital.app.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -19,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Thực thể Bệnh nhân — một bác sĩ tiếp nhận, một phòng, (1-1) bảo hiểm.
+ * Thực thể Bệnh nhân — (1-1) bảo hiểm, có lịch sử nhiều Lượt điều trị.
  */
 @Entity
 @Table(name = "benh_nhan")
@@ -42,20 +39,9 @@ public class BenhNhan {
     @Column(name = "so_dien_thoai", length = 30)
     private String soDienThoai;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ma_bac_si", nullable = false)
-    private BacSi bacSiTiepNhan;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ma_phong")
-    private PhongBenh phongBenh;
-
-    @OneToOne(mappedBy = "benhNhan", fetch = FetchType.LAZY)
-    private BaoHiem baoHiem;
-
     @OneToMany(mappedBy = "benhNhan")
     private List<LuotDieuTri> luotDieuTris = new ArrayList<>();
 
-    @OneToMany(mappedBy = "benhNhan")
-    private List<HoaDon> hoaDons = new ArrayList<>();
+    @OneToOne(mappedBy = "benhNhan")
+    private BaoHiem baoHiem;
 }
