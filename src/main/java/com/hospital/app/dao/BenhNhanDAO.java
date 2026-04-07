@@ -38,6 +38,7 @@ public class BenhNhanDAO {
         try {
             // JPQL: Truy vấn lồng để nạp sẵn các thực thể liên quan qua Lượt điều trị
             String jpql = "SELECT DISTINCT b FROM BenhNhan b " +
+                          "LEFT JOIN FETCH b.baoHiem " +
                           "LEFT JOIN FETCH b.luotDieuTris ldt " +
                           "LEFT JOIN FETCH ldt.bacSiDieuTri " +
                           "LEFT JOIN FETCH ldt.phongBenh " +
@@ -58,6 +59,9 @@ public class BenhNhanDAO {
             // JPQL: Tìm kiếm mờ theo tên bệnh nhân, kết hợp nạp thông tin bảo hiểm
             String jpql = "SELECT DISTINCT b FROM BenhNhan b " +
                           "LEFT JOIN FETCH b.baoHiem " +
+                          "LEFT JOIN FETCH b.luotDieuTris ldt " +
+                          "LEFT JOIN FETCH ldt.bacSiDieuTri " +
+                          "LEFT JOIN FETCH ldt.phongBenh " +
                           "WHERE LOWER(b.tenBenhNhan) LIKE LOWER(:kw) " +
                           "ORDER BY b.maBenhNhan";
             TypedQuery<BenhNhan> q = em.createQuery(jpql, BenhNhan.class);
@@ -128,6 +132,19 @@ public class BenhNhanDAO {
             em.getTransaction().begin();
             BenhNhan b = em.find(BenhNhan.class, id);
             if (b != null) {
+                // Kiểm tra xem bệnh nhân có lượt điều trị nào không
+                Long ldtCount = em.createQuery("SELECT COUNT(l) FROM LuotDieuTri l WHERE l.benhNhan.maBenhNhan = :id", Long.class)
+                                  .setParameter("id", id)
+                                  .getSingleResult();
+                if (ldtCount > 0) {
+                    throw new RuntimeException("Bệnh nhân đã có lịch sử khám/điều trị. Không thể xóa dữ liệu!");
+                }
+                
+                // Xóa bảo hiểm y tế nếu có
+                em.createQuery("DELETE FROM BaoHiem bh WHERE bh.benhNhan.maBenhNhan = :id")
+                  .setParameter("id", id)
+                  .executeUpdate();
+
                 em.remove(b);            // Xóa thực thể
             }
             em.getTransaction().commit();
